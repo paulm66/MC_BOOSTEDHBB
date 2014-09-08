@@ -152,20 +152,20 @@ namespace Rivet {
 
                 m["_n"] = bookHisto1D(name + "_n", 5, 0, 5);
                 m["_pt"] = bookHisto1D(name + "_pt", 50, 0, 2000*GeV);
-                m["_eta"] = bookHisto1D(name + "_eta", 50, 0, 2000*GeV);
-                m["_phi"] = bookHisto1D(name + "_phi", 50, 0, 2000*GeV);
+                m["_eta"] = bookHisto1D(name + "_eta", 50, -4.2, 4.2);
+                m["_phi"] = bookHisto1D(name + "_phi", 50, -PI, PI);
                 m["_E"] = bookHisto1D(name + "_E", 50, 0, 2000*GeV);
                 m["_m"] = bookHisto1D(name + "_m", 50, 0, 2000*GeV);
 
                 m["0_pt"] = bookHisto1D(name + "0_pt", 50, 0, 2000*GeV);
-                m["0_eta"] = bookHisto1D(name + "0_eta", 50, 0, 2000*GeV);
-                m["0_phi"] = bookHisto1D(name + "0_phi", 50, 0, 2000*GeV);
+                m["0_eta"] = bookHisto1D(name + "0_eta", 50, -4.2, 4.2);
+                m["0_phi"] = bookHisto1D(name + "0_phi", 50, -PI, PI);
                 m["0_E"] = bookHisto1D(name + "0_E", 50, 0, 2000*GeV);
                 m["0_m"] = bookHisto1D(name + "0_m", 50, 0, 2000*GeV);
 
                 m["1_pt"] = bookHisto1D(name + "1_pt", 50, 0, 2000*GeV);
-                m["1_eta"] = bookHisto1D(name + "1_eta", 50, 0, 2000*GeV);
-                m["1_phi"] = bookHisto1D(name + "1_phi", 50, 0, 2000*GeV);
+                m["1_eta"] = bookHisto1D(name + "1_eta", 50, -4.2, 4.2);
+                m["1_phi"] = bookHisto1D(name + "1_phi", 50, -PI, PI);
                 m["1_E"] = bookHisto1D(name + "1_E", 50, 0, 2000*GeV);
                 m["1_m"] = bookHisto1D(name + "1_m", 50, 0, 2000*GeV);
 
