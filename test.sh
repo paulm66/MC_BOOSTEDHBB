@@ -1,1 +1,1 @@
-rivet -a MC_BOOSTEDHBB -H MC_BOOSTEDHBB.yoda --pwd $1
+rivet -a MC_BOOSTEDHBB -H MC_BOOSTEDHBB.yoda --pwd "$@"
