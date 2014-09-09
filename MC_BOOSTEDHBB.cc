@@ -73,7 +73,7 @@ namespace Rivet {
                 for (unsigned int i = 2; i <= 10; i += 2) {
 
                     // register calo jets
-                    sprintf(buff, "AntiKt%02xCaloJets", i);
+                    sprintf(buff, "AntiKt%02dCaloJets", i);
                     s = string(buff);
                     jetCollections.push_back(s);
                     addJetCollection(s);
@@ -81,13 +81,13 @@ namespace Rivet {
                     addProjection(FastJets(caloParts, FastJets::ANTIKT, i/10.0), s);
 
                     // and corresponding b-tagged jets
-                    sprintf(buff, "AntiKt%02xCaloJetsB", i);
+                    sprintf(buff, "AntiKt%02dCaloJetsB", i);
                     s = string(buff);
                     addJetCollection(s);
 
 
                     // register track jets
-                    sprintf(buff, "AntiKt%02xTrackJets", i);
+                    sprintf(buff, "AntiKt%02dTrackJets", i);
                     s = string(buff);
                     jetCollections.push_back(s);
                     addJetCollection(s);
@@ -95,7 +95,7 @@ namespace Rivet {
                     addProjection(FastJets(trackParts, FastJets::ANTIKT, i/10.0), s);
 
                     // and corresponding b-tagged jets
-                    sprintf(buff, "AntiKt%02xTrackJetsB", i);
+                    sprintf(buff, "AntiKt%02dTrackJetsB", i);
                     s = string(buff);
                     addJetCollection(s);
                 }
@@ -150,17 +150,20 @@ namespace Rivet {
 
             vector<string> jetCollections;
             map<string, map<string, Histo1DPtr> > jet1DHistos;
-            map<string, map<string, Profile1DPtr> > jet1DProfiles;
+            // map<string, map<string, Profile1DPtr> > jet1DProfiles;
+            map<string, map<string, Histo2DPtr> > jet2DHistos;
             map<string, double> minJetPtCut;
 
             void addJetCollection(const string &name) {
                 jet1DHistos[name] = map<string, Histo1DPtr>();
-                jet1DProfiles[name] = map<string, Profile1DPtr>();
+                // jet1DProfiles[name] = map<string, Profile1DPtr>();
+                jet2DHistos[name] = map<string, Histo2DPtr>();
 
                 MSG_DEBUG("Adding jet collection " << name);
 
                 map<string, Histo1DPtr> &mh1D = jet1DHistos.at(name);
-                map<string, Profile1DPtr> &mp1D = jet1DProfiles.at(name);
+                // map<string, Profile1DPtr> &mp1D = jet1DProfiles.at(name);
+                map<string, Histo2DPtr> &mh2D = jet2DHistos.at(name);
 
                 mh1D["_n"] = bookHisto1D(name + "_n", 10, 0, 10);
                 mh1D["_pt"] = bookHisto1D(name + "_pt", 50, 0, 2000*GeV);
@@ -192,6 +195,7 @@ namespace Rivet {
                 mh1D["01_E"] = bookHisto1D(name + "01_E", 50, 0, 2000*GeV);
                 mh1D["01_m"] = bookHisto1D(name + "01_m", 50, 0, 500*GeV);
 
+                /*
                 mp1D["_pt_m"] = bookProfile1D(name + "_pt_m", 50, 0, 2000*GeV);
                 mp1D["_m_pt"] = bookProfile1D(name + "_m_pt", 50, 0, 500*GeV);
 
@@ -212,6 +216,21 @@ namespace Rivet {
 
                 mp1D["01_pt_01_m"] = bookProfile1D(name + "01_pt_01_m", 50, 0, 2000*GeV);
                 mp1D["01_m_01_pt"] = bookProfile1D(name + "01_m_01_pt", 50, 0, 500*GeV);
+                */
+
+                mh2D["_pt_m"] = bookHisto2D(name + "_pt_m", 50, 0, 2000*GeV, 50, 0, 500*GeV);
+
+                mh2D["0_pt_m"] = bookHisto2D(name + "0_pt_m", 50, 0, 2000*GeV, 50, 0, 500*GeV);
+
+                mh2D["1_pt_m"] = bookHisto2D(name + "1_pt_m", 50, 0, 2000*GeV, 50, 0, 500*GeV);
+
+                mh2D["0_pt_1_pt"] = bookHisto2D(name + "0_pt_1_pt", 50, 0, 2000*GeV, 50, 0, 2000*GeV);
+
+                mh2D["01_pt_01_dr"] = bookHisto2D(name + "01_pt_01_dr", 50, 0, 2000*GeV, 50, 0, 5);
+
+                mh2D["01_pt_01_deta"] = bookHisto2D(name + "01_pt_01_deta", 50, 0, 2000*GeV, 50, 0, 5);
+
+                mh2D["01_pt_01_m"] = bookHisto2D(name + "01_pt_01_m", 50, 0, 2000*GeV, 50, 0, 500*GeV);
 
                 return;
             }
@@ -221,7 +240,8 @@ namespace Rivet {
                 MSG_DEBUG("Filling jet collection " << name);
 
                 map<string, Histo1DPtr> &mh1D = jet1DHistos[name];
-                map<string, Profile1DPtr> &mp1D = jet1DProfiles[name];
+                map<string, Histo2DPtr> &mh2D = jet2DHistos[name];
+                // map<string, Profile1DPtr> &mp1D = jet1DProfiles[name];
 
                 mh1D["_n"]->fill(jets.size(), weight);
 
@@ -232,8 +252,12 @@ namespace Rivet {
                     mh1D["_E"]->fill(jet.E(), weight);
                     mh1D["_m"]->fill(jet.mass(), weight);
 
+                    mh2D["_pt_m"]->fill(jet.pT(), jet.mass(), weight);
+
+                    /*
                     mp1D["_pt_m"]->fill(jet.pT(), jet.mass(), weight);
                     mp1D["_m_pt"]->fill(jet.mass(), jet.pT(), weight);
+                    */
                 }
 
                 if (jets.size()) {
@@ -243,8 +267,12 @@ namespace Rivet {
                     mh1D["0_E"]->fill(jets[0].energy(), weight);
                     mh1D["0_m"]->fill(jets[0].mass(), weight);
 
+                    mh2D["0_pt_m"]->fill(jets[0].pT(), jets[0].mass(), weight);
+
+                    /*
                     mp1D["0_pt_m"]->fill(jets[0].pT(), jets[0].mass(), weight);
                     mp1D["0_m_pt"]->fill(jets[0].mass(), jets[0].pT(), weight);
+                    */
                 }
 
                 if (jets.size() > 1) {
@@ -254,8 +282,12 @@ namespace Rivet {
                     mh1D["1_E"]->fill(jets[1].energy(), weight);
                     mh1D["1_m"]->fill(jets[1].mass(), weight);
 
+                    mh2D["1_pt_m"]->fill(jets[1].pT(), jets[1].mass(), weight);
+
+                    /*
                     mp1D["1_pt_m"]->fill(jets[1].pT(), jets[1].mass(), weight);
                     mp1D["1_m_pt"]->fill(jets[1].mass(), jets[1].pT(), weight);
+                    */
 
 
                     mh1D["01_dr"]->fill(Rivet::deltaR(jets[0], jets[1]), weight);
@@ -270,6 +302,15 @@ namespace Rivet {
                     mh1D["01_m"]->fill(p.mass(), weight);
 
 
+                    mh2D["0_pt_1_pt"]->fill(jets[0].pT(), jets[1].pT(), weight);
+
+                    mh2D["01_pt_01_m"]->fill(p.pT(), p.mass(), weight);
+
+                    mh2D["01_pt_01_dr"]->fill(p.pT(), Rivet::deltaR(jets[0], jets[1]), weight);
+
+                    mh2D["01_pt_01_deta"]->fill(p.pT(), Rivet::deltaEta(jets[0], jets[1]), weight);
+
+                    /*
                     mp1D["0_pt_1_pt"]->fill(jets[0].pT(), jets[1].pT(), weight);
                     mp1D["1_pt_0_pt"]->fill(jets[1].pT(), jets[0].pT(), weight);
 
@@ -281,6 +322,7 @@ namespace Rivet {
 
                     mp1D["01_pt_01_deta"]->fill(p.pT(), Rivet::deltaEta(jets[0], jets[1]), weight);
                     mp1D["01_deta_01_pt"]->fill(Rivet::deltaEta(jets[0], jets[1]), p.pT(), weight);
+                    */
                 }
 
                 return;
