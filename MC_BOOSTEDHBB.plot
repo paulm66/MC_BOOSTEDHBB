@@ -1,8 +1,47 @@
-# BEGIN PLOT /MC_BOOSTEDHBB/d01-x01-y01
-#Title=[Uncomment and insert title for histogram d01-x01-y01 here]
-#XLabel=[Uncomment and insert x-axis label for histogram d01-x01-y01 here]
-#YLabel=[Uncomment and insert y-axis label for histogram d01-x01-y01 here]
-# + any additional plot settings you might like, see make-plots documentation
+# BEGIN PLOT /MC_BOOSTEDHBB/.*
+LogY=0
 # END PLOT
 
-# ... add more histograms as you need them ...
+# BEGIN PLOT /MC_BOOSTEDHBB/.*Jets.*_E
+XLabel=jet energy [GeV]
+# END PLOT
+
+# BEGIN PLOT /MC_BOOSTEDHBB/.*Jets.*_pt
+XLabel=jet $p_T$ [GeV]
+# END PLOT
+
+# BEGIN PLOT /MC_BOOSTEDHBB/.*Jets.*_m
+XLabel=jet mass [GeV]
+# END PLOT
+
+# BEGIN PLOT /MC_BOOSTEDHBB/.*Jets.*_eta
+XLabel=jet $\eta$
+# END PLOT
+
+# BEGIN PLOT /MC_BOOSTEDHBB/Jets.*_phi
+XLabel=jet $\phi$
+# END PLOT
+
+# BEGIN PLOT /MC_BOOSTEDHBB/Jets.*_dr
+XLabel=$\Delta R$
+# END PLOT
+
+# BEGIN PLOT /MC_BOOSTEDHBB/Jets.*_dphi
+XLabel=$\Delta \phi$
+# END PLOT
+
+# BEGIN PLOT /MC_BOOSTEDHBB/Jets.*_deta
+XLabel=$\Delta \eta$
+# END PLOT
+
+# BEGIN PLOT /MC_BOOSTEDHBB/Jets.*_m_.*
+YLabel=jet mass [GeV]
+# END PLOT
+
+# BEGIN PLOT /MC_BOOSTEDHBB/Jets.*_pt_.*
+YLabel=jet $p_T$ [GeV]
+# END PLOT
+
+# BEGIN PLOT /MC_BOOSTEDHBB/Jets.*_dr_.*
+YLabel=$\Delta R$
+# END PLOT
