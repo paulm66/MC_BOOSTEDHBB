@@ -51,7 +51,7 @@ namespace Rivet {
                 MissingMomentum mmfs(FinalState(-4.2, 4.2, 0*GeV));
                 addProjection(mmfs, "MissingMomentum");
 
-                // calo jets
+                // calo jets constituents
                 // don't include high-pt neutrinos or leptons in jets
                 // TODO
                 // include electrons?
@@ -64,48 +64,41 @@ namespace Rivet {
                 VetoedFinalState caloParts(FinalState(-4.2, 4.2));
                 caloParts.addVetoOnThisFinalState(leptonsAndNeutrinos);
 
-                addProjection(FastJets(caloParts, FastJets::ANTIKT, 0.2), "AntiKt02CaloJets");
-                addProjection(FastJets(caloParts, FastJets::ANTIKT, 0.4), "AntiKt04CaloJets");
-                addProjection(FastJets(caloParts, FastJets::ANTIKT, 0.6), "AntiKt06CaloJets");
-                addProjection(FastJets(caloParts, FastJets::ANTIKT, 0.8), "AntiKt08CaloJets");
-                addProjection(FastJets(caloParts, FastJets::ANTIKT, 1.0), "AntiKt10CaloJets");
-
-
-                // "track" jets
+                // "track" jets constituents
                 ChargedFinalState trackParts(-2.5, 2.5, 0.5*GeV);
 
-                addProjection(FastJets(trackParts, FastJets::ANTIKT, 0.2), "AntiKt02TrackJets");
-                addProjection(FastJets(trackParts, FastJets::ANTIKT, 0.4), "AntiKt04TrackJets");
-                addProjection(FastJets(trackParts, FastJets::ANTIKT, 0.6), "AntiKt06TrackJets");
-                addProjection(FastJets(trackParts, FastJets::ANTIKT, 0.8), "AntiKt08TrackJets");
-                addProjection(FastJets(trackParts, FastJets::ANTIKT, 1.0), "AntiKt10TrackJets");
+
+                char buff[100];
+                string s;
+                for (unsigned int i = 2; i <= 10; i += 2) {
+
+                    // register calo jets
+                    sprintf(buff, "AntiKt%02xCaloJets", i);
+                    s = string(buff);
+                    jetCollections.push_back(s);
+                    addJetCollection(s);
+                    minJetPtCut[s] = 25*GeV;
+                    addProjection(FastJets(caloParts, FastJets::ANTIKT, i/10.0), s);
+
+                    // and corresponding b-tagged jets
+                    sprintf(buff, "AntiKt%02xCaloJetsB", i);
+                    s = string(buff);
+                    addJetCollection(s);
 
 
-                addJetCollection("AntiKt02CaloJets");
-                addJetCollection("AntiKt04CaloJets");
-                addJetCollection("AntiKt06CaloJets");
-                addJetCollection("AntiKt08CaloJets");
-                addJetCollection("AntiKt10CaloJets");
+                    // register track jets
+                    sprintf(buff, "AntiKt%02xTrackJets", i);
+                    s = string(buff);
+                    jetCollections.push_back(s);
+                    addJetCollection(s);
+                    minJetPtCut[s] = 25*GeV;
+                    addProjection(FastJets(trackParts, FastJets::ANTIKT, i/10.0), s);
 
-                addJetCollection("AntiKt02TrackJets");
-                addJetCollection("AntiKt04TrackJets");
-                addJetCollection("AntiKt06TrackJets");
-                addJetCollection("AntiKt08TrackJets");
-                addJetCollection("AntiKt10TrackJets");
-
-                // TODO
-
-                minJetPtCut["AntiKt02CaloJets"] = 25*GeV;
-                minJetPtCut["AntiKt04CaloJets"] = 25*GeV;
-                minJetPtCut["AntiKt06CaloJets"] = 25*GeV;
-                minJetPtCut["AntiKt08CaloJets"] = 25*GeV;
-                minJetPtCut["AntiKt10CaloJets"] = 25*GeV;
-
-                minJetPtCut["AntiKt02TrackJets"] = 25*GeV;
-                minJetPtCut["AntiKt04TrackJets"] = 25*GeV;
-                minJetPtCut["AntiKt06TrackJets"] = 25*GeV;
-                minJetPtCut["AntiKt08TrackJets"] = 25*GeV;
-                minJetPtCut["AntiKt10TrackJets"] = 25*GeV;
+                    // and corresponding b-tagged jets
+                    sprintf(buff, "AntiKt%02xTrackJetsB", i);
+                    s = string(buff);
+                    addJetCollection(s);
+                }
 
                 
                 return;
@@ -117,21 +110,24 @@ namespace Rivet {
                 const double weight = event.weight();
 
                 // leptons
-                // const Particles &leptons =
-                    // applyProjection<ChargedLeptons>(event, "ChargedLeptons").particles();
+                const Particles &leptons =
+                    applyProjection<ChargedLeptons>(event, "ChargedLeptons").particles();
 
-                fillJetCollection("AntiKt02CaloJets", event);
-                fillJetCollection("AntiKt04CaloJets", event);
-                fillJetCollection("AntiKt06CaloJets", event);
-                fillJetCollection("AntiKt08CaloJets", event);
-                fillJetCollection("AntiKt10CaloJets", event);
 
-                fillJetCollection("AntiKt02TrackJets", event);
-                fillJetCollection("AntiKt04TrackJets", event);
-                fillJetCollection("AntiKt06TrackJets", event);
-                fillJetCollection("AntiKt08TrackJets", event);
-                fillJetCollection("AntiKt10TrackJets", event);
+                foreach (const string &name, jetCollections) {
+                    const FastJets &fj =
+                        applyProjection<FastJets>(event, name);
+                    const Jets &jets = fj.jetsByPt(minJetPtCut[name]);
+                    fillJetCollection(name, jets, weight);
 
+                    Jets bjets;
+                    foreach (const Jet& jet, jets)
+                        if (jet.bTags().size()) bjets.push_back(jet);
+
+                    fillJetCollection(name + "B", bjets, weight);
+                }
+
+                return;
             }
 
 
@@ -152,6 +148,7 @@ namespace Rivet {
 
         private:
 
+            vector<string> jetCollections;
             map<string, map<string, Histo1DPtr> > jet1DHistos;
             map<string, map<string, Profile1DPtr> > jet1DProfiles;
             map<string, double> minJetPtCut;
@@ -220,13 +217,8 @@ namespace Rivet {
             }
 
 
-            void fillJetCollection(const string &name, const Event &event) {
+            void fillJetCollection(const string &name, const Jets &jets, double weight) {
                 MSG_DEBUG("Filling jet collection " << name);
-
-                double weight = event.weight();
-                const FastJets &fj =
-                    applyProjection<FastJets>(event, name);
-                const Jets &jets = fj.jetsByPt(minJetPtCut[name]);
 
                 map<string, Histo1DPtr> &mh1D = jet1DHistos[name];
                 map<string, Profile1DPtr> &mp1D = jet1DProfiles[name];
