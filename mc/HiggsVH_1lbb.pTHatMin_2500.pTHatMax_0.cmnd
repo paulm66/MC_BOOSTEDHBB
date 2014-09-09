@@ -1,0 +1,17 @@
+# set up VH production
+HiggsSM:ffbar2HZ=on
+HiggsSM:ffbar2HW=on
+
+# Hbb decays only
+25:onMode=off
+25:onIfMatch=5 -5
+
+# W and Z leptonic decays
+23:onMode=off
+23:onIfAny=11 -11 13 -13
+
+24:onMode=off
+24:onIfAny=11 -11 13 -13
+
+PhaseSpace:pTHatMin=2500
+PhaseSpace:pTHatMax=0

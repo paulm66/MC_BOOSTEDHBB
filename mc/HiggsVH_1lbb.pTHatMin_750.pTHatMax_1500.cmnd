@@ -12,3 +12,6 @@ HiggsSM:ffbar2HW=on
 
 24:onMode=off
 24:onIfAny=11 -11 13 -13
+
+PhaseSpace:pTHatMin=750
+PhaseSpace:pTHatMax=1500
