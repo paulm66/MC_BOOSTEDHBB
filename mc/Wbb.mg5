@@ -1,0 +1,13 @@
+import model sm
+
+define l+ e+ mu+ ta+
+define l- e- mu- ta-
+define l l+ l-
+
+define v ve vm vt
+define v~ ve~ vm~ vt~
+define vall v v~
+
+generate p p > w+ b b~, w+ > l+ v $ h
+add process p p > w- b b~, w- > l- v~ $ h
+output madevent Wbb -f

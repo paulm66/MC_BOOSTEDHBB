@@ -1,5 +1,1 @@
-INFILE=`echo $1 | sed -e 's/.*\///'`
-OUTFILE=run/${INFILE/hepmc/yoda}
-LOGFILE=${OUTFILE/yoda/log}
-
-rivet -a MC_BOOSTEDHBB --pwd -H $OUTFILE $1 >& $LOGFILE &
+rivet -a MC_BOOSTEDHBB -H ${1/hepmc/yoda} --pwd $1
