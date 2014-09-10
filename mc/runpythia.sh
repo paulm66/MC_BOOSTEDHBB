@@ -1,11 +1,18 @@
 for f in $@
 do
-    gunzip -c $f/Events/run_01/events.lhe.gz > $f/events.lhe
+    echo "gunzip -c $f/Events/run_01/events.lhe.gz > $f/$f.lhe"
+    gunzip -c $f/Events/run_01/events.lhe.gz > $f/$f.lhe
 
     # TODO
     # why is this necessary?!
-    perl -p -i -e "s/\"3.0\"/\"1.0\"/" $f/events.lhe
+    echo "perl -p -i -e "s/\"3.0\"/\"1.0\"/" $f/$f.lhe"
+    perl -p -i -e "s/\"3.0\"/\"1.0\"/" $f/$f.lhe
 
-    run-pythia -n 999999999 -l $f/events.lhe -o $f/events.hepmc >& $f/pythia.log &
+    echo "run-pythia -n 999999999 -l $f/$f.lhe -o $f/$f.hepmc >& $f/pythia.log &"
+    run-pythia -n 999999999 -l $f/$f.lhe -o $f/$f.hepmc >& $f/pythia.log &
 
 done
+
+echo "all jobs submitted in runpythia.sh. waiting for completion."
+
+wait
