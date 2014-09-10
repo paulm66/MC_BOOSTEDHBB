@@ -203,3 +203,23 @@ YLabel=dijet $\Delta \eta$
 LogZ=1
 YLabel=dijet $\Delta \phi$
 # END PLOT
+
+# BEGIN HISTOGRAM .*WH.*
+Title=WH
+# END HISTOGRAM
+
+# BEGIN HISTOGRAM .*ZH.*
+Title=ZH
+# END HISTOGRAM
+
+# BEGIN HISTOGRAM .*Wbb.*
+Title=Wbb
+# END HISTOGRAM
+
+# BEGIN HISTOGRAM .*Zbb.*
+Title=Zbb
+# END HISTOGRAM
+
+# BEGIN HISTOGRAM .*ttbar.*
+Title=ttbar
+# END HISTOGRAM
