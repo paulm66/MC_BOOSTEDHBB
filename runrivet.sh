@@ -1,1 +1,3 @@
-rivet -a MC_BOOSTEDHBB -H ${1/hepmc/yoda} --pwd $1
+for f in $@
+do
+    rivet -a MC_BOOSTEDHBB -H ${f/hepmc/yoda} --pwd $f
