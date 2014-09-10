@@ -1,1 +1,1 @@
-rivet -a MC_BOOSTEDHBB -H ${1/cmnd/yoda} --pwd $1
+rivet -a MC_BOOSTEDHBB -H ${1/hepmc/yoda} --pwd $1

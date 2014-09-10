@@ -13,5 +13,5 @@ HiggsSM:ffbar2HW=on
 24:onMode=off
 24:onIfAny=11 -11 13 -13
 
-PhaseSpace:bias2Selection
+PhaseSpace:bias2Selection=on
 PhaseSpace:bias2SelectionPow=6
