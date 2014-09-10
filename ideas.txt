@@ -1,0 +1,4 @@
+to look at:
+
+- invariant mass/dr of leptonis and both b jets (reduce boosted top background)
+- track jets look promising, possibly matched to large-r jets
