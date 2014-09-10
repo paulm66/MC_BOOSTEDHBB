@@ -5,7 +5,7 @@ for f in $@
 rm py.py
 
 for f in $@
-    do echo "00" | ./${f/.mg5/}/bin/generate_events >& ${f/.mg5/}/run.log &
+    do echo "00" | ./${f/.mg5/}/bin/generate_events >& ${f/.mg5/}/madgraph.log &
     done
 
 wait
