@@ -13,9 +13,6 @@ define v~ ve~ vm~ vt~
 define vall v v~
 """
 
-# split files in ht of all partons
-defhts = [0, 400, 800, 1600, 3200]
-
 class mg5proc:
     def __init__(self, name, cmd,
             runcarddict={"nevents": 10000}):
@@ -35,16 +32,22 @@ class mg5proc:
             return n
 
 
-    def run(self):
+    def initialize(self):
 
         mg5 = Popen("mg5_aMC", stdin=PIPE, stdout=PIPE, stderr=PIPE)
 
         print "sending madgraph process command."
         print self.cmd; stdout.flush()
         mg5.stdin.write(self.cmd)
+        mg5.stdin.write("\n")
 
-        mg5.stdin.write("output madevent %s -f" % self.name)
-        mg5.communicate("")
+        print "output madevent %s -f" % self.name; stdout.flush()
+        mg5.stdin.write("output madevent %s -f\n" % self.name)
+
+        print "quit"; stdout.flush()
+        mg5.stdin.write("quit\n")
+
+        mg5.wait()
 
         print "fixing run_card.dat"; stdout.flush()
 
@@ -67,31 +70,21 @@ class mg5proc:
             if not haskey:
                 runcard.write(line)
 
+            continue
+
         runcard.close()
 
         return
 
 
-def ihtsplit(proc, ihts):
-    procs = []
-    for i in range(len(ihts)):
-        ihtmin = ihts[i]
-        try:
-            ihtmax = ihts[i+1]
-        except IndexError:
-            ihtmax = -1
+    def generate_events(self):
+        print "starting event generation for %s." % self.name
+        stdout.flush()
 
-        name = "%s_htmin%04d%s"  % (proc.name, htmin,
-                "_htmax%04d" % htmax if htmax != -1 else "")
+        outf = open("%s/generate_events.log" % proc.name, 'w')
+        evgenproc = Popen("%s/bin/generate_events" % proc.name,
+                stdin=PIPE, stdout=outf, stderr=outf)
 
-        # need at least a shallow copy here.
-        d = dict(proc.runcarddict)
+        evgenproc.stdin.write("0\n0\n")
 
-        d["ihtmin"] = ihtmin
-        d["ihtmax"] = ihtmax
-
-        procs.append(mg5proc(name, proc.cmd, d))
-
-        continue
-
-    return procs
+        return evgenproc

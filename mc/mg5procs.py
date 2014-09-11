@@ -1,7 +1,7 @@
 from mg5common import mg5proc, smheader
 
 procdict = {
-"ttbarnoallhad":
+"ttbar":
 "generate p p > t t~, t > l+ v b; add process p p > t t~, t~ > l- v~ b~",
 
 "Wbb":
