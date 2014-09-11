@@ -3,7 +3,7 @@
 from subprocess import Popen, PIPE
 from sys import stdout
 
-mg5header = """import model sm
+smheader = """import model sm
 define l+ e+ mu+ ta+
 define l- e- mu- ta-
 define l l+ l-
@@ -15,50 +15,68 @@ define vall v v~
 # split files in ht of all partons
 defhts = [0, 400, 800, 1600, 3200]
 
-def runmg5(procname, proccmd, nevents, hts=[0]):
-    for i in range(len(hts)):
-        htmin = hts[i]
-        try:
-            htmax = hts[i+1]
-        except IndexError:
-            htmax = -1
+class mg5proc:
+    def __init__(self, name, cmd,
+            runcarddict={"nevents": 10000}):
+
+        self.name = name
+        self.cmd = cmd
+        self.runcarddict = runccarddict
+
+        return
+
+
+    def nevents(self, n=-1):
+        if n < 0:
+            return self.runcarddict["nevents"]
+        else:
+            self.runcarddict["nevents"] = n
+            return n
+
+
+    def run(self):
 
         mg5 = Popen("mg5_aMC", stdin=PIPE, stdout=PIPE, stderr=PIPE)
 
-        print "sending madgraph sm information:"
-        print mg5header; stdout.flush()
-        mg5.stdin.write(mg5header)
+        print "sending madgraph process command."
+        print self.cmd; stdout.flush()
+        mg5.stdin.write(self.cmd)
 
-        print "sending madgraph process information:"
-        print proccmd; stdout.flush()
-        mg5.stdin.write(proccmd)
-
-        foldername = "%s_htmin%04d%s"  % (procname, htmin,
-                "_htmax%04d" % htmax if htmax != -1 else "")
-
-        mg5.stdin.write("output madevent %s -f" % foldername)
+        mg5.stdin.write("output madevent %s -f" % self.name)
         mg5.communicate("")
 
         print "fixing run_card.dat"; stdout.flush()
-        runcard = open("%s/Cards/run_card.dat" % foldername, "r")
-        lines = runcard.readlines()
-        runcard.close()
 
-        for i in range(len(lines)):
-            line = lines[i]
-            if "nevents" in line:
-                lines[i] = "%04d = nevents ! Number of unweighted events requested\n" % nevents
-            elif "= ihtmin" in line:
-                lines[i] = "%04d = ihtmin !inclusive Ht for all partons (including b)\n" % htmin
-            elif "= ihtmax" in line:
-                lines[i] = "%04d = ihtmax !inclusive Ht for all partons (including b)\n" % htmax
-
+        runcard = open("%s/Cards/run_card.dat" % self.name, "w")
+        for key, v in self.runccarddict.iteritems():
+            val = ("%s" % val).rjust(8)
+            runcard.write("%s = %s" % (val, key))
             continue
-
-        runcard = open("%s/Cards/run_card.dat" % foldername, "w")
-        runcard.writelines(lines)
         runcard.close()
+
+        return
+
+
+def ihtsplit(proc, ihts):
+    procs = []
+    for i in range(len(ihts)):
+        ihtmin = ihts[i]
+        try:
+            ihtmax = ihts[i+1]
+        except IndexError:
+            ihtmax = -1
+
+        name = "%s_htmin%04d%s"  % (proc.name, htmin,
+                "_htmax%04d" % htmax if htmax != -1 else "")
+
+        # need at least a shallow copy here.
+        d = dict(proc.runcarddict)
+
+        d["ihtmin"] = ihtmin
+        d["ihtmax"] = ihtmax
+
+        procs.append(mg5proc(name, proc.cmd, d))
 
         continue
 
-    return
+    return procs
