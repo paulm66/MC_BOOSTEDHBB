@@ -36,7 +36,7 @@ class mg5proc:
 
         mg5 = Popen("mg5_aMC", stdin=PIPE, stdout=PIPE, stderr=PIPE)
 
-        print "sending madgraph process command."
+        print "sending madgraph process commands:"
         print self.cmd; stdout.flush()
         mg5.stdin.write(self.cmd)
         mg5.stdin.write("\n")
@@ -74,17 +74,27 @@ class mg5proc:
 
         runcard.close()
 
+        print "fixing me5_configuration.txt"; stdout.flush()
+        meconfig = open("%s/Cards/me5_configuration.txt" % self.name, "w")
+        meconfig.write("cluster_type=pbs\n")
+        meconfig.write("cluster_queue=medium6\n")
+        meconfig.close()
+
+
+        print "%s initialized\n\n" % self.name
+        stdout.flush()
+
         return
 
 
-    def generate_events(self):
+    def generate_events(self, opts=["--nb_core=1"]):
         print "starting event generation for %s." % self.name
         stdout.flush()
 
-        outf = open("%s/generate_events.log" % proc.name, 'w')
-        evgenproc = Popen("%s/bin/generate_events" % proc.name,
-                stdin=PIPE, stdout=outf, stderr=outf)
+        exe = ["./%s/bin/generate_events" % self.name, "-f"] + opts
+        print " ".join(exe); print; stdout.flush()
 
-        evgenproc.stdin.write("0\n0\n")
+        outf = open("%s/generate_events.log" % self.name, 'w')
+        evgenproc = Popen(exe, stdin=PIPE, stdout=outf, stderr=outf)
 
         return evgenproc
