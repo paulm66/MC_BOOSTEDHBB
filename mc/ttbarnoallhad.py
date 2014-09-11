@@ -1,12 +1,15 @@
-from sys import argv
 from mg5common import mg5proc, smheader
 
-ttbarnoallhadcmd = smheader + \
+cmd = \
 """
 generate p p > t t~, t > l+ v b
 add process p p > t t~, t~ > l- v~ b~
 """
 
-ttbarnoallhadproc = mg5proc("ttbarnoallhad", ttbarnoallhadcmd)
+proc = mg5proc("ttbarnoallhad", smheader + cmd)
 
-ttbarnoallhadproc.run()
+if __name__ == "__main__":
+    from sys import argv
+    if len(argv) > 2:
+        proc.nevents(int(argv[-1]))
+    proc.run()
