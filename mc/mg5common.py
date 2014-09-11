@@ -2,6 +2,7 @@
 
 from subprocess import Popen, PIPE
 from sys import stdout
+import re
 
 smheader = """import model sm
 define l+ e+ mu+ ta+
@@ -21,7 +22,7 @@ class mg5proc:
 
         self.name = name
         self.cmd = cmd
-        self.runcarddict = runccarddict
+        self.runcarddict = runcarddict
 
         return
 
@@ -47,11 +48,25 @@ class mg5proc:
 
         print "fixing run_card.dat"; stdout.flush()
 
+        runcard = open("%s/Cards/run_card.dat" % self.name, "r")
+        lines = runcard.readlines()
+        runcard.close()
+
         runcard = open("%s/Cards/run_card.dat" % self.name, "w")
-        for key, v in self.runccarddict.iteritems():
-            val = ("%s" % val).rjust(8)
-            runcard.write("%s = %s" % (val, key))
-            continue
+        for line in lines:
+            haskey = False
+            for key, v in self.runcarddict.iteritems():
+                if " %s " % key in line:
+                    val = ("%s" % v).rjust(8)
+                    runcard.write("%s = %s\n" % (val, key))
+                    haskey = True
+                    break
+
+                continue
+
+            if not haskey:
+                runcard.write(line)
+
         runcard.close()
 
         return
