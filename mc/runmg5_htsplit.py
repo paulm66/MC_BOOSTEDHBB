@@ -3,7 +3,7 @@ from mg5procs import procdict
 from subprocess import Popen
 
 defihts = [0, 400, 800, 1600, 3200]
-defnevents = 100
+defnevents = 100000
 
 def ihtsplit(proc, ihts):
     procs = []
@@ -52,10 +52,13 @@ if __name__ == "__main__":
         p.nevents(defnevents)
         p.initialize()
 
+    # remove spurious leftover files
     Popen(["rm", "py.py"]).wait()
 
     running = []
     for p in procs:
+        # run on PBS cluster.
+        # call p.generate_events() to run locally.
         running.append(p.generate_events(["--cluster"]))
 
     map(Popen.wait, running)
