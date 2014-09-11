@@ -48,6 +48,8 @@ namespace Rivet {
                 ChargedLeptons clfs(FinalState(-2.5, 2.5, 25*GeV));
                 addProjection(clfs, "ChargedLeptons");
 
+                // TODO
+                // minimum pt cutoff?
                 MissingMomentum mmfs(FinalState(-4.2, 4.2, 0*GeV));
                 addProjection(mmfs, "MissingMomentum");
 
@@ -101,6 +103,7 @@ namespace Rivet {
                 }
 
                 addPartCollection("Leptons");
+                addPartCollection("MissingMomentum");
                 
                 return;
             }
@@ -111,10 +114,24 @@ namespace Rivet {
                 const double weight = event.weight();
 
                 // leptons
+                // TODO
+                // isolation?
                 const Particles &leptons =
                     applyProjection<ChargedLeptons>(event, "ChargedLeptons").particles();
 
+                // require at least one lepton
+                if (!leptons.size())
+                    return;
+
+                // TODO
+                // bin in nleptons, lepton flavors, njets, nbjets, met
+
                 fillPartCollection("Leptons", leptons, weight);
+
+                const Particle& mm =
+                    Particle(0, -applyProjection<MissingMomentum>(event, "MissingMomentum").visibleMomentum());
+
+                fillPartCollection("MissingMomentum", vector<Particle>(1, mm), weight);
 
                 foreach (const string &name, jetCollections) {
                     const FastJets &fj =
