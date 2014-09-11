@@ -77,7 +77,7 @@ class mg5proc:
         print "fixing me5_configuration.txt"; stdout.flush()
         meconfig = open("%s/Cards/me5_configuration.txt" % self.name, "w")
         meconfig.write("cluster_type=pbs\n")
-        meconfig.write("cluster_queue=medium6\n")
+        meconfig.write("cluster_queue=short6\n")
         meconfig.close()
 
 
