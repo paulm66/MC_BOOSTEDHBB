@@ -1,9 +1,9 @@
 from mg5common import mg5proc
 from mg5procs import procdict
-from sys import stdout
+from subprocess import Popen
 
 defihts = [0, 400, 800, 1600, 3200]
-defnevents = 50000
+defnevents = 100
 
 def ihtsplit(proc, ihts):
     procs = []
@@ -45,8 +45,6 @@ if __name__ == "__main__":
     # list of list of ihtsplit procs
     ihtsplitprocs = map(lambda p: ihtsplit(p, defihts), procs)
 
-    print ihtsplitprocs; stdout.flush()
-
     # list of all procs to run
     procs = sum(ihtsplitprocs[1:], ihtsplitprocs[0])
 
@@ -58,8 +56,8 @@ if __name__ == "__main__":
 
     running = []
     for p in procs:
-        running.append(p.generate_events())
+        running.append(p.generate_events(["--cluster"]))
 
-    map(mg5proc.wait, procs)
+    map(Popen.wait, running)
 
     print "all event generation complete."
