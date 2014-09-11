@@ -83,143 +83,140 @@ Title=anti-$k_t$ 1.0 Calorimeter b-tagged Jets
 Title=anti-$k_t$ 1.0 Track b-tagged Jets
 # END PLOT
 
-# BEGIN PLOT /MC_BOOSTEDHBB/.*Jets.*_pt$
-XLabel=jet multiplicity
+# BEGIN PLOT /MC_BOOSTEDHBB/AntiKt10TrackJetsB.*
+Title=anti-$k_t$ 1.0 Track b-tagged Jets
 # END PLOT
 
-# BEGIN PLOT /MC_BOOSTEDHBB/.*Jets.*_pt$
-XLabel=jet $p_T$ [GeV]
+# BEGIN PLOT /MC_BOOSTEDHBB/Leptons.*
+Title=Leptons
 # END PLOT
 
-# BEGIN PLOT /MC_BOOSTEDHBB/.*Jets.*_eta$
-XLabel=jet $\eta$
+# BEGIN PLOT /MC_BOOSTEDHBB/MissingMomentum.*
+Title=MissingMomentum
 # END PLOT
 
-# BEGIN PLOT /MC_BOOSTEDHBB/.*Jets.*_phi$
-XLabel=jet $\phi$
+
+# BEGIN PLOT /MC_BOOSTEDHBB/.*_n$
+XLabel=multiplicity
 # END PLOT
 
-# BEGIN PLOT /MC_BOOSTEDHBB/.*Jets.*_E$
-XLabel=jet $E$ [GeV]
+# BEGIN PLOT /MC_BOOSTEDHBB/.*_pt$
+XLabel=$p_T$ [GeV]
 # END PLOT
 
-# BEGIN PLOT /MC_BOOSTEDHBB/.*Jets.*_m$
-XLabel=jet mass [GeV]
+# BEGIN PLOT /MC_BOOSTEDHBB/.*_eta$
+XLabel=$\eta$
 # END PLOT
 
-# BEGIN PLOT /MC_BOOSTEDHBB/.*Jets.*_pt_.*
+# BEGIN PLOT /MC_BOOSTEDHBB/.*_phi$
+XLabel=$\phi$
+# END PLOT
+
+# BEGIN PLOT /MC_BOOSTEDHBB/.*_E$
+XLabel=$E$ [GeV]
+# END PLOT
+
+# BEGIN PLOT /MC_BOOSTEDHBB/.*_m$
+XLabel=mass [GeV]
+# END PLOT
+
+# 1D plots
+# BEGIN PLOT /MC_BOOSTEDHBB/.*
+LogY=1
+YLabel=events/pb
+# END PLOT
+
+# 2D plots
+# BEGIN PLOT /MC_BOOSTEDHBB/.*_.*_.*
+LogY=0
 LogZ=1
-YLabel=jet $p_T$ [GeV]
+ZLabel=events/pb
 # END PLOT
 
-# BEGIN PLOT /MC_BOOSTEDHBB/.*Jets.*_eta_.*
-LogZ=1
-YLabel=jet $\eta$
+# BEGIN PLOT /MC_BOOSTEDHBB/.*_pt_.*
+YLabel=$p_T$ [GeV]
 # END PLOT
 
-# BEGIN PLOT /MC_BOOSTEDHBB/.*Jets.*_phi_.*
-LogZ=1
-YLabel=jet $phi$
+# BEGIN PLOT /MC_BOOSTEDHBB/.*_eta_.*
+YLabel=$\eta$
 # END PLOT
 
-# BEGIN PLOT /MC_BOOSTEDHBB/.*Jets.*_E_.*
-LogZ=1
-YLabel=jet $E$ [GeV]
+# BEGIN PLOT /MC_BOOSTEDHBB/.*_phi_.*
+YLabel=$phi$
 # END PLOT
 
-# BEGIN PLOT /MC_BOOSTEDHBB/.*Jets.*_m_.*
-LogZ=1
-YLabel=jet mass [GeV]
+# BEGIN PLOT /MC_BOOSTEDHBB/.*_E_.*
+YLabel=$E$ [GeV]
 # END PLOT
 
-# BEGIN PLOT /MC_BOOSTEDHBB/.*Jets.*01_pt$
-XLabel=dijet $p_T$ [GeV]
+# BEGIN PLOT /MC_BOOSTEDHBB/.*_m_.*
+YLabel=mass [GeV]
 # END PLOT
 
-# BEGIN PLOT /MC_BOOSTEDHBB/.*Jets.*01_eta$
-XLabel=dijet $\eta$
+
+# multiple-object plots
+# BEGIN PLOT /MC_BOOSTEDHBB/.*01_pt$
+XLabel=leading+subleading $p_T$ [GeV]
 # END PLOT
 
-# BEGIN PLOT /MC_BOOSTEDHBB/.*Jets.*01_phi$
-XLabel=dijet $\phi$
+# BEGIN PLOT /MC_BOOSTEDHBB/.*01_eta$
+XLabel=leading+subleading $\eta$
 # END PLOT
 
-# BEGIN PLOT /MC_BOOSTEDHBB/.*Jets.*01_E$
-XLabel=dijet $E$ [GeV]
+# BEGIN PLOT /MC_BOOSTEDHBB/.*01_phi$
+XLabel=leading+subleading $\phi$
 # END PLOT
 
-# BEGIN PLOT /MC_BOOSTEDHBB/.*Jets.*01_m$
-XLabel=dijet mass [GeV]
+# BEGIN PLOT /MC_BOOSTEDHBB/.*01_E$
+XLabel=leading+subleading $E$ [GeV]
 # END PLOT
 
-# BEGIN PLOT /MC_BOOSTEDHBB/.*Jets.*01_dr$
-XLabel=dijet $\Delta R$
+# BEGIN PLOT /MC_BOOSTEDHBB/.*01_m$
+XLabel=leading+subleading mass [GeV]
 # END PLOT
 
-# BEGIN PLOT /MC_BOOSTEDHBB/.*Jets.*01_dphi$
-XLabel=dijet $\Delta \phi$
+# BEGIN PLOT /MC_BOOSTEDHBB/.*01_dr$
+XLabel=leading-subleading $\Delta R$
 # END PLOT
 
-# BEGIN PLOT /MC_BOOSTEDHBB/.*Jets.*01_deta$
-XLabel=dijet $\Delta \eta$
+# BEGIN PLOT /MC_BOOSTEDHBB/.*01_deta$
+XLabel=leading-subleading $\Delta \eta$
 # END PLOT
 
-# BEGIN PLOT /MC_BOOSTEDHBB/.*Jets.*01_pt_.*
-LogZ=1
-YLabel=dijet $p_T$ [GeV]
+# BEGIN PLOT /MC_BOOSTEDHBB/.*01_dphi$
+XLabel=leading-subleading $\Delta \phi$
 # END PLOT
 
-# BEGIN PLOT /MC_BOOSTEDHBB/.*Jets.*01_eta_.*
-LogZ=1
-YLabel=dijet $\eta$
+
+
+# BEGIN PLOT /MC_BOOSTEDHBB/.*01_pt_.*
+YLabel=leading+subleading $p_T$ [GeV]
 # END PLOT
 
-# BEGIN PLOT /MC_BOOSTEDHBB/.*Jets.*01_phi_.*
-LogZ=1
-YLabel=dijet $phi$
+# BEGIN PLOT /MC_BOOSTEDHBB/.*01_eta_.*
+YLabel=leading+subleading $\eta$
 # END PLOT
 
-# BEGIN PLOT /MC_BOOSTEDHBB/.*Jets.*01_E_.*
-LogZ=1
-YLabel=dijet $E$ [GeV]
+# BEGIN PLOT /MC_BOOSTEDHBB/.*01_phi_.*
+YLabel=leading+subleading $phi$
 # END PLOT
 
-# BEGIN PLOT /MC_BOOSTEDHBB/.*Jets.*01_m_.*
-LogZ=1
-YLabel=dijet mass [GeV]
+# BEGIN PLOT /MC_BOOSTEDHBB/.*01_E_.*
+YLabel=leading+subleading $E$ [GeV]
 # END PLOT
 
-# BEGIN PLOT /MC_BOOSTEDHBB/.*Jets.*01_dr_.*
-LogZ=1
-YLabel=dijet $\Delta R$
+# BEGIN PLOT /MC_BOOSTEDHBB/.*01_m_.*
+YLabel=leading+subleading mass [GeV]
 # END PLOT
 
-# BEGIN PLOT /MC_BOOSTEDHBB/.*Jets.*01_deta_.*
-LogZ=1
-YLabel=dijet $\Delta \eta$
+# BEGIN PLOT /MC_BOOSTEDHBB/.*01_dr_.*
+YLabel=leading-subleading $\Delta R$
 # END PLOT
 
-# BEGIN PLOT /MC_BOOSTEDHBB/.*Jets.*01_dphi_.*
-LogZ=1
-YLabel=dijet $\Delta \phi$
+# BEGIN PLOT /MC_BOOSTEDHBB/.*01_deta_.*
+YLabel=leading-subleading $\Delta \eta$
 # END PLOT
 
-# BEGIN HISTOGRAM .*WH.*
-Title=WH
-# END HISTOGRAM
-
-# BEGIN HISTOGRAM .*ZH.*
-Title=ZH
-# END HISTOGRAM
-
-# BEGIN HISTOGRAM .*Wbb.*
-Title=Wbb
-# END HISTOGRAM
-
-# BEGIN HISTOGRAM .*Zbb.*
-Title=Zbb
-# END HISTOGRAM
-
-# BEGIN HISTOGRAM .*ttbar.*
-Title=ttbar
-# END HISTOGRAM
+# BEGIN PLOT /MC_BOOSTEDHBB/.*01_dphi_.*
+YLabel=leading-subleading $\Delta \phi$
+# END PLOT
