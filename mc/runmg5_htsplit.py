@@ -1,9 +1,7 @@
 from mg5common import mg5proc
-from mg5procs import procdict
-from subprocess import Popen
 
 defihts = [0, 400, 800, 1600, 3200]
-defnevents = 100000
+defnevents = 25000
 
 def ihtsplit(proc, ihts):
     procs = []
@@ -31,7 +29,11 @@ def ihtsplit(proc, ihts):
 
 
 if __name__ == "__main__":
+    from mg5procs import procdict
+    from subprocess import Popen
+    from time import sleep
     from sys import argv
+
     if len(argv) < 2:
         print "no processes specified."
         exit()
@@ -61,6 +63,11 @@ if __name__ == "__main__":
         # call p.generate_events() to run locally.
         running.append(p.generate_events(["--cluster"]))
 
-    map(Popen.wait, running)
+    nprocs = len(running)
+    while nprocs > 0:
+        nprocs = sum(map(Popen.poll, procs))
+        print "%d processes still running." % nprocs
+        stdout.flush()
+        sleep(30)
 
     print "all event generation complete."
