@@ -1,25 +1,25 @@
 from mg5common import mg5proc
 
-defihts = [0, 400, 800, 1600, 3200]
+defptl1s = [0, 50, 200, 800]
 defnevents = 25000
 
-def ihtsplit(proc, ihts):
+def ptl1split(proc, ptl1s):
     procs = []
-    for i in range(len(ihts)):
-        ihtmin = ihts[i]
+    for i in range(len(ptl1s)):
+        ptl1min = ptl1s[i]
         try:
-            ihtmax = ihts[i+1]
+            ptl1max = ptl1s[i+1]
         except IndexError:
-            ihtmax = -1
+            ptl1max = -1
 
-        name = "%s_ihtmin%04d%s"  % (proc.name, ihtmin,
-                "_ihtmax%04d" % ihtmax if ihtmax != -1 else "")
+        name = "%s_ptl1min%04d%s"  % (proc.name, ptl1min,
+                "_ptl1max%04d" % ptl1max if ptl1max != -1 else "")
 
         # need at least a shallow copy here.
         d = dict(proc.runcarddict)
 
-        d["ihtmin"] = ihtmin
-        d["ihtmax"] = ihtmax
+        d["ptl1min"] = ptl1min
+        d["ptl1max"] = ptl1max
 
         procs.append(mg5proc(name, proc.cmd, d))
 
@@ -44,11 +44,11 @@ if __name__ == "__main__":
     else:
         procs = map(procdict.get, argv[1:])
 
-    # list of list of ihtsplit procs
-    ihtsplitprocs = map(lambda p: ihtsplit(p, defihts), procs)
+    # list of list of ptl1split procs
+    ptl1splitprocs = map(lambda p: ptl1split(p, defptl1s), procs)
 
     # list of all procs to run
-    procs = sum(ihtsplitprocs[1:], ihtsplitprocs[0])
+    procs = sum(ptl1splitprocs[1:], ptl1splitprocs[0])
 
     for p in procs:
         p.nevents(defnevents)
