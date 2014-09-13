@@ -1,6 +1,6 @@
 from mg5common import mg5proc
 
-defptl1s = [0, 50, 200, 800]
+defptl1s = [0, 100, 200, 400]
 defnevents = 25000
 
 def ptl1split(proc, ptl1s):
@@ -32,7 +32,7 @@ if __name__ == "__main__":
     from mg5procs import procdict
     from subprocess import Popen
     from time import sleep
-    from sys import argv
+    from sys import argv, stdout
 
     if len(argv) < 2:
         print "no processes specified."
@@ -60,12 +60,12 @@ if __name__ == "__main__":
     running = []
     for p in procs:
         # run on PBS cluster.
-        # call p.generate_events() to run locally.
-        running.append(p.generate_events(["--cluster"]))
+        running.append(p.generate_events())
+        # running.append(p.generate_events(["--cluster"]))
 
     nprocs = len(running)
     while nprocs > 0:
-        nprocs = sum(map(Popen.poll, procs))
+        nprocs = sum(map(lambda p: bool(p.poll()), running))
         print "%d processes still running." % nprocs
         stdout.flush()
         sleep(30)
