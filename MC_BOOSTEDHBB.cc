@@ -69,42 +69,44 @@ namespace Rivet {
                 // "track" jets constituents
                 ChargedFinalState trackParts(-2.5, 2.5, 0.5*GeV);
 
-
-                char buff[100];
-                string s;
-                for (unsigned int i = 2; i <= 10; i += 2) {
-
-                    // register calo jets
-                    sprintf(buff, "AntiKt%02dCaloJets", i);
-                    s = string(buff);
-                    jetCollections.push_back(s);
-                    addPartCollection(s);
-                    minJetPtCut[s] = 25*GeV;
-                    addProjection(FastJets(caloParts, FastJets::ANTIKT, i/10.0), s);
-
-                    // and corresponding b-tagged jets
-                    sprintf(buff, "AntiKt%02dCaloJetsB", i);
-                    s = string(buff);
-                    addPartCollection(s);
+                // register 0.4 calo jets
+                string s = "AntiKt04CaloJets";
+                jetCollections.push_back(s);
+                bookPartCollection(s);
+                minJetPtCut[s] = 25*GeV;
+                addProjection(FastJets(caloParts, FastJets::ANTIKT, 0.4), s);
 
 
-                    // register track jets
-                    sprintf(buff, "AntiKt%02dTrackJets", i);
-                    s = string(buff);
-                    jetCollections.push_back(s);
-                    addPartCollection(s);
-                    minJetPtCut[s] = 25*GeV;
-                    addProjection(FastJets(trackParts, FastJets::ANTIKT, i/10.0), s);
+                // and corresponding b-tagged jets
+                s = "AntiKt04CaloJetsB";
+                bookPartCollection(s);
 
-                    // and corresponding b-tagged jets
-                    sprintf(buff, "AntiKt%02dTrackJetsB", i);
-                    s = string(buff);
-                    addPartCollection(s);
-                }
+                // register 1.0 calo jets
+                s = "AntiKt10CaloJets";
+                jetCollections.push_back(s);
+                bookPartCollection(s);
+                minJetPtCut[s] = 250*GeV;
+                addProjection(FastJets(caloParts, FastJets::ANTIKT, 1.0), s);
 
-                addPartCollection("Leptons");
-                addPartCollection("MissingMomentum");
-                
+                // and corresponding b-tagged jets
+                s = "AntiKt10CaloJetsB";
+                bookPartCollection(s);
+
+
+                // register 0.3 track jets
+                s = "AntiKt03TrackJets";
+                jetCollections.push_back(s);
+                bookPartCollection(s);
+                minJetPtCut[s] = 25*GeV;
+                addProjection(FastJets(trackParts, FastJets::ANTIKT, 0.3), s);
+
+                // and corresponding b-tagged jets
+                s = "AntiKt03TrackJetsB";
+                bookPartCollection(s);
+
+                bookPartCollection("Leptons");
+                bookPart("MissingMomentum");
+
                 return;
             }
 
@@ -131,7 +133,7 @@ namespace Rivet {
                 const Particle& mm =
                     Particle(0, -applyProjection<MissingMomentum>(event, "MissingMomentum").visibleMomentum());
 
-                fillPartCollection("MissingMomentum", vector<Particle>(1, mm), weight);
+                fillPart("MissingMomentum", mm, weight);
 
                 foreach (const string &name, jetCollections) {
                     const FastJets &fj =
@@ -179,7 +181,45 @@ namespace Rivet {
             map<string, map<string, Histo2DPtr> > histos2D;
             map<string, double> minJetPtCut;
 
-            void addPartCollection(const string &name) {
+            void bookPart(const string &name) {
+                histos1D[name] = map<string, Histo1DPtr>();
+                histos2D[name] = map<string, Histo2DPtr>();
+
+                MSG_DEBUG("Adding particle " << name);
+
+                map<string, Histo1DPtr> &mh1D = histos1D.at(name);
+                map<string, Histo2DPtr> &mh2D = histos2D.at(name);
+
+                mh1D["_pt"] = bookHisto1D(name + "_pt", 50, 0, 2000*GeV);
+                mh1D["_eta"] = bookHisto1D(name + "_eta", 50, -5, 5);
+                mh1D["_phi"] = bookHisto1D(name + "_phi", 50, 0, 2*PI);
+                mh1D["_E"] = bookHisto1D(name + "_E", 50, 0, 2000*GeV);
+                mh1D["_m"] = bookHisto1D(name + "_m", 50, 0, 500*GeV);
+
+                mh2D["_m_pt"] = bookHisto2D(name + "_m_pt", 50, 0, 2000*GeV, 50, 0, 500*GeV);
+
+                return;
+            }
+
+            template <class T>
+            void fillPart(const string &name, const T &part, double weight) {
+                MSG_DEBUG("Filling particle " << name);
+
+                map<string, Histo1DPtr> &mh1D = histos1D[name];
+                map<string, Histo2DPtr> &mh2D = histos2D[name];
+
+                mh1D["_pt"]->fill(part.pT(), weight);
+                mh1D["_eta"]->fill(part.eta(), weight);
+                mh1D["_phi"]->fill(part.phi(), weight);
+                mh1D["_E"]->fill(part.E(), weight);
+                mh1D["_m"]->fill(part.mass(), weight);
+
+                mh2D["_m_pt"]->fill(part.pT(), part.mass(), weight);
+
+                return;
+            }
+
+            void bookPartCollection(const string &name) {
                 histos1D[name] = map<string, Histo1DPtr>();
                 histos2D[name] = map<string, Histo2DPtr>();
 
