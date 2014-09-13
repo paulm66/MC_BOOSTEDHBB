@@ -1,7 +1,7 @@
 # BEGIN PLOT /MC_BOOSTEDHBB/.*
 # LogY=0
 # Legend=0
-Stack=ttbar Wbb Zbb
+Stack=.*ttbar.* .*Wbb.* .*Zbb.*
 # END PLOT
 
 # BEGIN PLOT /MC_BOOSTEDHBB/AntiKt02CaloJets.*
