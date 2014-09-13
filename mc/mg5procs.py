@@ -8,7 +8,7 @@ procdict = {
 "generate p p > w+ b b~, w+ > l+ v $ h; add process p p > w- b b~, w- > l- v~ $ h",
 
 "Zbb":
-"generate p p > w+ b b~, w+ > l+ v $ h; add process p p > w- b b~, w- > l- v~ $ h",
+"generate p p > z b b~, z > l l $ h",
 
 "WH":
 "generate p p > w+ h, w+ > l+ v, h > b b~; add process p p > w- h, w- > l- v~, h > b b~",
