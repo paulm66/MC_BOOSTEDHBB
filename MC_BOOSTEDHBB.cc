@@ -234,18 +234,21 @@ namespace Rivet {
                 mh1D["_phi"] = bookHisto1D(name + "_phi", 50, 0, 2*PI);
                 mh1D["_E"] = bookHisto1D(name + "_E", 50, 0, 2000*GeV);
                 mh1D["_m"] = bookHisto1D(name + "_m", 50, 0, 500*GeV);
+                mh1D["_mbypt"] = bookHisto1D(name + "_mbypt", 50, 0, 5);
 
                 mh1D["0_pt"] = bookHisto1D(name + "0_pt", 50, 0, 2000*GeV);
                 mh1D["0_eta"] = bookHisto1D(name + "0_eta", 50, -5, 5);
                 mh1D["0_phi"] = bookHisto1D(name + "0_phi", 50, 0, 2*PI);
                 mh1D["0_E"] = bookHisto1D(name + "0_E", 50, 0, 2000*GeV);
                 mh1D["0_m"] = bookHisto1D(name + "0_m", 50, 0, 500*GeV);
+                mh1D["0_mbypt"] = bookHisto1D(name + "0_mbypt", 50, 0, 5);
 
                 mh1D["1_pt"] = bookHisto1D(name + "1_pt", 50, 0, 2000*GeV);
                 mh1D["1_eta"] = bookHisto1D(name + "1_eta", 50, -5, 5);
                 mh1D["1_phi"] = bookHisto1D(name + "1_phi", 50, 0, 2*PI);
                 mh1D["1_E"] = bookHisto1D(name + "1_E", 50, 0, 2000*GeV);
                 mh1D["1_m"] = bookHisto1D(name + "1_m", 50, 0, 500*GeV);
+                mh1D["1_mbypt"] = bookHisto1D(name + "1_mbypt", 50, 0, 5);
 
 
                 mh1D["01_dr"] = bookHisto1D(name + "01_dr", 50, 0, 8);
@@ -257,6 +260,7 @@ namespace Rivet {
                 mh1D["01_phi"] = bookHisto1D(name + "01_phi", 50, 0, 2*PI);
                 mh1D["01_E"] = bookHisto1D(name + "01_E", 50, 0, 2000*GeV);
                 mh1D["01_m"] = bookHisto1D(name + "01_m", 50, 0, 500*GeV);
+                mh1D["01_mbypt"] = bookHisto1D(name + "01_mbypt", 50, 0, 5);
 
                 mh2D["_m_pt"] = bookHisto2D(name + "_m_pt", 50, 0, 2000*GeV, 50, 0, 500*GeV);
                 mh2D["0_m_pt"] = bookHisto2D(name + "0_m_pt", 50, 0, 2000*GeV, 50, 0, 500*GeV);
@@ -285,6 +289,7 @@ namespace Rivet {
                     mh1D["_phi"]->fill(part.phi(), weight);
                     mh1D["_E"]->fill(part.E(), weight);
                     mh1D["_m"]->fill(part.mass(), weight);
+                    mh1D["_mbypt"]->fill(part.mass()/part.pT(), weight);
 
                     mh2D["_m_pt"]->fill(part.pT(), part.mass(), weight);
                 }
@@ -295,6 +300,7 @@ namespace Rivet {
                     mh1D["0_phi"]->fill(parts[0].phi(), weight);
                     mh1D["0_E"]->fill(parts[0].energy(), weight);
                     mh1D["0_m"]->fill(parts[0].mass(), weight);
+                    mh1D["0_mbypt"]->fill(parts[0].mass()/parts[0].pT(), weight);
 
                     mh2D["0_m_pt"]->fill(parts[0].pT(), parts[0].mass(), weight);
                 }
@@ -305,6 +311,7 @@ namespace Rivet {
                     mh1D["1_phi"]->fill(parts[1].phi(), weight);
                     mh1D["1_E"]->fill(parts[1].energy(), weight);
                     mh1D["1_m"]->fill(parts[1].mass(), weight);
+                    mh1D["1_mbypt"]->fill(parts[1].mass()/parts[1].pT(), weight);
 
                     mh2D["1_m_pt"]->fill(parts[1].pT(), parts[1].mass(), weight);
 
@@ -319,6 +326,7 @@ namespace Rivet {
                     mh1D["01_phi"]->fill(p.phi(), weight);
                     mh1D["01_E"]->fill(p.E(), weight);
                     mh1D["01_m"]->fill(p.mass(), weight);
+                    mh1D["01_mbypt"]->fill(p.mass()/p.pT(), weight);
 
 
                     mh2D["0_pt_1_pt"]->fill(parts[0].pT(), parts[1].pT(), weight);
