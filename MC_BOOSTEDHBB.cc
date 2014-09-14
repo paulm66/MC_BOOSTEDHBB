@@ -91,6 +91,9 @@ namespace Rivet {
                 // and corresponding b-tagged jets
                 s = "AntiKt10CaloJetsB";
                 bookPartCollection(s);
+                // and corresponding double-b-tagged jets
+                s = "AntiKt10CaloJetsBB";
+                bookPartCollection(s);
 
 
                 // register 0.3 track jets
@@ -106,6 +109,12 @@ namespace Rivet {
 
                 bookPartCollection("Leptons");
                 bookPart("MissingMomentum");
+
+                bookPart("Higgs");
+
+                // other histograms
+                minLeptonBJet_m = bookHisto1D("MinLeptonBJet_m", 50, 0, 1000*GeV);
+                minLeptonBJet_dr = bookHisto1D("MinLeptonBJet_dr", 50, 0, 5);
 
                 return;
             }
@@ -148,6 +157,63 @@ namespace Rivet {
                     fillPartCollection(name + "B", bjets, weight);
                 }
 
+
+                // search for higgs: highest-pt akt10 jet matched to two b-tagged track jets
+                Jets antiKt10CaloJets =
+                    applyProjection<FastJets>(event, "AntiKt10CaloJets").jetsByPt(250*GeV);
+                Jets antiKt03TrackJets =
+                    applyProjection<FastJets>(event, "AntiKt03TrackJets").jetsByPt(25*GeV);
+
+                Jet higgs;
+                Jets matchedTrackJets;
+                foreach (const Jet &calojet, antiKt10CaloJets) {
+                    matchedTrackJets.clear();
+
+                    // TODO
+                    // mass window optimized?
+                    // if (abs(125*GeV - calojet.mass()) > 30*GeV)
+                        // continue;
+
+                    foreach (const Jet &trackjet, antiKt03TrackJets) {
+                        // is it near the calojet?
+                        if (Rivet::deltaR(calojet, trackjet) > 1.0)
+                            continue;
+
+                        // is it b-tagged?
+                        if (!trackjet.bTags().size())
+                            continue;
+
+                        matchedTrackJets.push_back(trackjet);
+                    }
+
+                    if (matchedTrackJets.size() >= 2) {
+                        higgs = calojet;
+                        break;
+                    }
+                }
+
+                double drMin = -1, massMin = -1;
+                if (higgs.pT()) {
+                    fillPart("Higgs", higgs, weight);
+
+                    foreach(Jet &trackjet, matchedTrackJets) {
+                        if (drMin < 0) {
+                            drMin = Rivet::deltaR(trackjet, leptons[0]);
+                            massMin = (trackjet.momentum() + leptons[0].momentum()).mass();
+                            continue;
+                        }
+
+                        double dr = Rivet::deltaR(trackjet, leptons[0]);
+                        double mass = (trackjet.momentum() + leptons[0].momentum()).mass();
+
+                        drMin = dr < drMin ? dr : drMin;
+                        massMin = mass < massMin ? mass : massMin;
+                    }
+
+                    minLeptonBJet_m->fill(massMin, weight);
+                    minLeptonBJet_dr->fill(drMin, weight);
+                }
+
                 return;
             }
 
@@ -168,6 +234,9 @@ namespace Rivet {
                     }
                 }
 
+                minLeptonBJet_m->scaleW(norm);
+                minLeptonBJet_dr->scaleW(norm);
+
                 return;
             }
 
@@ -180,6 +249,9 @@ namespace Rivet {
             map<string, map<string, Histo1DPtr> > histos1D;
             map<string, map<string, Histo2DPtr> > histos2D;
             map<string, double> minJetPtCut;
+
+            Histo1DPtr minLeptonBJet_m;
+            Histo1DPtr minLeptonBJet_dr;
 
             void bookPart(const string &name) {
                 histos1D[name] = map<string, Histo1DPtr>();
