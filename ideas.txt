@@ -1,5 +1,9 @@
 to look at:
 
-- invariant mass/dr of leptonis and both b jets (reduce boosted top background)
-- track jets look promising, possibly matched to large-r jets
+- invariant mass/dr of leptons and both b jets (reduce boosted top background)
+- match trackjets to large-r jets
 - bin events in nlep, njet, nbjet, met
+- Higgs, Z, W mass window cuts
+- veto ttbar events in 2lepton channel with MET (hard cut, fraction of ht from
+  met, etc)
+- ttbar is combinatorial: don't bin in lep pt
