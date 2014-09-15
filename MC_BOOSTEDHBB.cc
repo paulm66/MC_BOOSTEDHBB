@@ -67,7 +67,7 @@ namespace Rivet {
                 caloParts.addVetoOnThisFinalState(leptonsAndNeutrinos);
 
                 // "track" jets constituents
-                VetoedFinalState trackParts(-2.5, 2.5, 0.5*GeV);
+                VetoedFinalState trackParts(ChargedFinalState(-2.5, 2.5, 0.5*GeV));
                 trackParts.addVetoOnThisFinalState(leptonsAndNeutrinos);
 
                 // register 0.4 calo jets
