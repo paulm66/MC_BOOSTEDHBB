@@ -67,7 +67,8 @@ namespace Rivet {
                 caloParts.addVetoOnThisFinalState(leptonsAndNeutrinos);
 
                 // "track" jets constituents
-                ChargedFinalState trackParts(-2.5, 2.5, 0.5*GeV);
+                VetoedFinalState trackParts(-2.5, 2.5, 0.5*GeV);
+                trackParts.addVetoOnThisFinalState(leptonsAndNeutrinos);
 
                 // register 0.4 calo jets
                 string s = "AntiKt04CaloJets";
@@ -91,9 +92,6 @@ namespace Rivet {
                 // and corresponding b-tagged jets
                 s = "AntiKt10CaloJetsB";
                 bookPartCollection(s);
-                // and corresponding double-b-tagged jets
-                s = "AntiKt10CaloJetsBB";
-                bookPartCollection(s);
 
 
                 // register 0.3 track jets
@@ -111,6 +109,7 @@ namespace Rivet {
                 bookPart("MissingMomentum");
 
                 bookPart("Higgs");
+                bookPartCollection("HiggsTrackJets");
 
                 // other histograms
                 minLeptonBJet_m = bookHisto1D("MinLeptonBJet_m", 50, 0, 1000*GeV);
@@ -130,18 +129,22 @@ namespace Rivet {
                 const Particles &leptons =
                     applyProjection<ChargedLeptons>(event, "ChargedLeptons").particles();
 
-                // require at least one lepton
                 if (!leptons.size())
-                    return;
-
-                // TODO
-                // bin in nleptons, lepton flavors, njets, nbjets, met
-
-                fillPartCollection("Leptons", leptons, weight);
+                    vetoEvent;
 
                 const Particle& mm =
                     Particle(0, -applyProjection<MissingMomentum>(event, "MissingMomentum").visibleMomentum());
 
+                // TODO
+                // mass window cuts?
+                if (leptons.size() >= 2) {
+                    const FourMomentum &zmom = leptons[0].momentum() + leptons[1].momentum();
+                    if (abs(zmom.mass() - 90*GeV) > 15*GeV)
+                        vetoEvent;
+                }
+
+
+                fillPartCollection("Leptons", leptons, weight);
                 fillPart("MissingMomentum", mm, weight);
 
                 foreach (const string &name, jetCollections) {
@@ -171,8 +174,8 @@ namespace Rivet {
 
                     // TODO
                     // mass window optimized?
-                    // if (abs(125*GeV - calojet.mass()) > 30*GeV)
-                        // continue;
+                    if (abs(125*GeV - calojet.mass()) > 30*GeV)
+                        continue;
 
                     foreach (const Jet &trackjet, antiKt03TrackJets) {
                         // is it near the calojet?
@@ -195,6 +198,7 @@ namespace Rivet {
                 double drMin = -1, massMin = -1;
                 if (higgs.pT()) {
                     fillPart("Higgs", higgs, weight);
+                    fillPartCollection("HiggsTrackJets", matchedTrackJets, weight);
 
                     foreach(Jet &trackjet, matchedTrackJets) {
                         if (drMin < 0) {
