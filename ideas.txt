@@ -7,3 +7,4 @@ to look at:
 - veto ttbar events in 2lepton channel with MET (hard cut, fraction of ht from
   met, etc)
 - ttbar is combinatorial: don't bin in lep pt
+- store outdgoing b-hadron deltaRs to jets
