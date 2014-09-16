@@ -37,6 +37,7 @@ namespace Rivet {
 
 /// Book histograms and initialise projections before the run
 void MC_BOOSTEDHBB::init() {
+    getLog().setLevel(Log::DEBUG);
 
     ChargedLeptons clfs(FinalState(-2.5, 2.5, 25*GeV));
     addProjection(clfs, "ChargedLeptons");
@@ -100,7 +101,7 @@ void MC_BOOSTEDHBB::init() {
 
     // register leptons and met
     bookFourMomColl("Leptons");
-    bookFourMomColl("Dilepton");
+    bookFourMomPair("Dilepton");
     bookFourMom("MissingMomentum");
 
 
@@ -170,11 +171,6 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
     foreach (const Jet &calojet, antiKt10CaloJets) {
         matchedTrackJets.clear();
 
-        // TODO
-        // mass window optimized?
-        if (abs(125*GeV - calojet.mass()) > 30*GeV)
-            continue;
-
         foreach (const Jet &trackjet, antiKt03TrackJets) {
             // is it near the calojet?
             if (Rivet::deltaR(calojet, trackjet) > 1.0)
@@ -195,10 +191,12 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
 
     if (higgs.pT()) {
         fillFourMom("Higgs", higgs, weight);
-        fillFourMomColl("HiggsTrackJets", matchedTrackJets, weight);
+        fillFourMomPair("HiggsTrackJets", matchedTrackJets[0], matchedTrackJets[1], weight);
     }
 
     double drMin = -1, massMin = -1;
+    Jet minLepDrJet;
+    Jet minLepMassJet;
     foreach(Jet &trackjet, antiKt03TrackJets) {
         if (!trackjet.bTags().size())
             continue;
@@ -212,13 +210,13 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
         double dr = Rivet::deltaR(trackjet, leptons[0]);
         double mass = (trackjet.momentum() + leptons[0].momentum()).mass();
 
-        drMin = dr < drMin ? dr : drMin;
-        massMin = mass < massMin ? mass : massMin;
+        minLepDrJet = dr < drMin ? trackjet : minLepDrJet;
+        minLepMassJet = mass < massMin ? trackjet : minLepMassJet;
     }
 
-    if (drMin > 0) {
-        minLeptonTrackJetB_m->fill(massMin, weight);
-        minLeptonTrackJetB_dr->fill(drMin, weight);
+    if (minLepDrJet.pT()) {
+        fillFourMomPair("MinDeltaRLeptonTrackJetB", leptons[0], minLepDrJet, weight);
+        fillFourMomPair("MinMassLeptonTrackJetB", leptons[0], minLepMassJet, weight);
     }
 
     return;
