@@ -1,91 +1,30 @@
 # BEGIN PLOT /MC_BOOSTEDHBB/.*
-# LogY=0
-# Legend=0
-Stack=.*ttbar.* .*Wbb.* .*Zbb.*
+LogY=1
+Legend=1
 # END PLOT
 
-# BEGIN PLOT /MC_BOOSTEDHBB/AntiKt02CaloJets.*
-Title=anti-$k_t$ 0.2 Calorimeter Jets
+# BEGIN PLOT /MC_BOOSTEDHBB/AntiKt03TrackJets.*
+Title=anti-$k_t$ 0.3 Track Jets
 # END PLOT
 
-# BEGIN PLOT /MC_BOOSTEDHBB/AntiKt02TrackJets.*
-Title=anti-$k_t$ 0.2 Track Jets
-# END PLOT
-
-# BEGIN PLOT /MC_BOOSTEDHBB/AntiKt02CaloJetsB.*
-Title=anti-$k_t$ 0.2 Calorimeter b-tagged Jets
-# END PLOT
-
-# BEGIN PLOT /MC_BOOSTEDHBB/AntiKt02TrackJetsB.*
-Title=anti-$k_t$ 0.2 Track b-tagged Jets
+# BEGIN PLOT /MC_BOOSTEDHBB/AntiKt03TrackJetsB.*
+Title=anti-$k_t$ 0.3 Track b-tagged Jets
 # END PLOT
 
 # BEGIN PLOT /MC_BOOSTEDHBB/AntiKt04CaloJets.*
 Title=anti-$k_t$ 0.4 Calorimeter Jets
 # END PLOT
 
-# BEGIN PLOT /MC_BOOSTEDHBB/AntiKt04TrackJets.*
-Title=anti-$k_t$ 0.4 Track Jets
-# END PLOT
-
 # BEGIN PLOT /MC_BOOSTEDHBB/AntiKt04CaloJetsB.*
 Title=anti-$k_t$ 0.4 Calorimeter b-tagged Jets
-# END PLOT
-
-# BEGIN PLOT /MC_BOOSTEDHBB/AntiKt04TrackJetsB.*
-Title=anti-$k_t$ 0.4 Track b-tagged Jets
-# END PLOT
-
-# BEGIN PLOT /MC_BOOSTEDHBB/AntiKt06CaloJets.*
-Title=anti-$k_t$ 0.6 Calorimeter Jets
-# END PLOT
-
-# BEGIN PLOT /MC_BOOSTEDHBB/AntiKt06TrackJets.*
-Title=anti-$k_t$ 0.6 Track Jets
-# END PLOT
-
-# BEGIN PLOT /MC_BOOSTEDHBB/AntiKt06CaloJetsB.*
-Title=anti-$k_t$ 0.6 Calorimeter b-tagged Jets
-# END PLOT
-
-# BEGIN PLOT /MC_BOOSTEDHBB/AntiKt06TrackJetsB.*
-Title=anti-$k_t$ 0.6 Track b-tagged Jets
-# END PLOT
-
-# BEGIN PLOT /MC_BOOSTEDHBB/AntiKt08CaloJets.*
-Title=anti-$k_t$ 0.8 Calorimeter Jets
-# END PLOT
-
-# BEGIN PLOT /MC_BOOSTEDHBB/AntiKt08TrackJets.*
-Title=anti-$k_t$ 0.8 Track Jets
-# END PLOT
-
-# BEGIN PLOT /MC_BOOSTEDHBB/AntiKt08CaloJetsB.*
-Title=anti-$k_t$ 0.8 Calorimeter b-tagged Jets
-# END PLOT
-
-# BEGIN PLOT /MC_BOOSTEDHBB/AntiKt08TrackJetsB.*
-Title=anti-$k_t$ 0.8 Track b-tagged Jets
 # END PLOT
 
 # BEGIN PLOT /MC_BOOSTEDHBB/AntiKt10CaloJets.*
 Title=anti-$k_t$ 1.0 Calorimeter Jets
 # END PLOT
 
-# BEGIN PLOT /MC_BOOSTEDHBB/AntiKt10TrackJets.*
-Title=anti-$k_t$ 1.0 Track Jets
-# END PLOT
-
 # BEGIN PLOT /MC_BOOSTEDHBB/AntiKt10CaloJetsB.*
 Title=anti-$k_t$ 1.0 Calorimeter b-tagged Jets
-# END PLOT
-
-# BEGIN PLOT /MC_BOOSTEDHBB/AntiKt10TrackJetsB.*
-Title=anti-$k_t$ 1.0 Track b-tagged Jets
-# END PLOT
-
-# BEGIN PLOT /MC_BOOSTEDHBB/AntiKt10TrackJetsB.*
-Title=anti-$k_t$ 1.0 Track b-tagged Jets
 # END PLOT
 
 # BEGIN PLOT /MC_BOOSTEDHBB/Leptons.*
@@ -95,7 +34,6 @@ Title=Leptons
 # BEGIN PLOT /MC_BOOSTEDHBB/MissingMomentum.*
 Title=MissingMomentum
 # END PLOT
-
 
 # BEGIN PLOT /MC_BOOSTEDHBB/.*_n$
 XLabel=multiplicity
@@ -132,6 +70,7 @@ YLabel=events/pb
 LogY=0
 LogZ=1
 ZLabel=events/pb
+Legend=0
 # END PLOT
 
 # BEGIN PLOT /MC_BOOSTEDHBB/.*_pt_.*
