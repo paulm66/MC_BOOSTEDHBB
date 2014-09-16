@@ -252,7 +252,7 @@ Histo1DPtr MC_BOOSTEDHBB::bookHisto(const string& name, const string& title,
     sprintf(buff, "events / %.2f", xbinwidth);
     string ylabel = buff;
 
-    return bookHisto1D(name, nxbins, xmin, xmax, xlabel, ylabel, title);
+    return bookHisto1D(name, nxbins, xmin, xmax, title, xlabel, ylabel);
 }
 
 
@@ -267,7 +267,7 @@ Histo2DPtr MC_BOOSTEDHBB::bookHisto(const string& name, const string& title,
     sprintf(buff, "events / %.2f / %.2f", xbinwidth, ybinwidth);
     string zlabel = buff;
 
-    return bookHisto2D(name, nxbins, xmin, xmax, nybins, ymin, ymax, xlabel, ylabel, zlabel, title);
+    return bookHisto2D(name, nxbins, xmin, xmax, nybins, ymin, ymax, title, xlabel, ylabel, zlabel);
 }
 
 
