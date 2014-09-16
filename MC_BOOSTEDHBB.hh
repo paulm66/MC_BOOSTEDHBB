@@ -31,10 +31,6 @@ namespace Rivet {
             map<string, map<string, Histo1DPtr> > histos1D;
             map<string, map<string, Histo2DPtr> > histos2D;
 
-            Histo1DPtr minLeptonTrackJetB_m;
-            Histo1DPtr minLeptonTrackJetB_dr;
-
-
             Histo1DPtr bookHisto(const string& name, const string& title,
                     const string& xlabel, int nxbins, double xmin, double xmax);
 

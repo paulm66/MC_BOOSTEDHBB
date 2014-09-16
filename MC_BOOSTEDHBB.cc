@@ -239,9 +239,6 @@ void MC_BOOSTEDHBB::finalize() {
         }
     }
 
-    minLeptonTrackJetB_m->scaleW(norm);
-    minLeptonTrackJetB_dr->scaleW(norm);
-
     return;
 }
 
