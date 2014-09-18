@@ -1,3 +1,5 @@
+#/usr/bin/env python
+
 defnevents = 1000000
 
 if __name__ == "__main__":

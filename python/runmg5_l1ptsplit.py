@@ -1,3 +1,5 @@
+#/usr/bin/env python
+
 from mg5common import mg5proc
 
 defptl1s = [0, 100, 200, 400]

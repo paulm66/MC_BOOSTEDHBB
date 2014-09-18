@@ -1,3 +1,5 @@
+#/usr/bin/env python
+
 from subprocess import Popen
 from sys import argv, stdout
 import splitLHE
