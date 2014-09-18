@@ -14,6 +14,7 @@
 #include "Rivet/Projections/IdentifiedFinalState.hh"
 #include "Rivet/Projections/ChargedLeptons.hh"
 #include "Rivet/Projections/MissingMomentum.hh"
+#include "Rivet/Projections/HeavyHadrons.hh"
 
 #include "Rivet/Jet.hh"
 #include "Rivet/Projections/FastJets.hh"
@@ -46,6 +47,8 @@ void MC_BOOSTEDHBB::init() {
     // minimum pt cutoff?
     MissingMomentum mmfs(FinalState(-4.2, 4.2, 0*GeV));
     addProjection(mmfs, "MissingMomentum");
+
+    addProjectoin(HeavyHadrons(), "HeavyHadrons");
 
     // calo jets constituents
     // TODO
@@ -108,6 +111,8 @@ void MC_BOOSTEDHBB::init() {
     // register special collections
     bookFourMom("Higgs");
     bookFourMomPair("HiggsTrackJets");
+
+    bookFourMomPair("BHadNearestJet");
 
     bookFourMomPair("MinDeltaRLeptonTrackJetB");
     bookFourMomPair("MinMassLeptonTrackJetB");
@@ -219,6 +224,11 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
         fillFourMomPair("MinMassLeptonTrackJetB", leptons[0], minLepMassJet, weight);
     }
 
+
+    // look at b hdrons
+    // TODO
+    // I was here.
+
     return;
 }
 
@@ -252,7 +262,7 @@ Histo1DPtr MC_BOOSTEDHBB::bookHisto(const string& name, const string& title,
     sprintf(buff, "events / %.2f", xbinwidth);
     string ylabel = buff;
 
-    return bookHisto1D(name, nxbins, xmin, xmax, xlabel, ylabel, title);
+    return bookHisto1D(name, nxbins, xmin, xmax, title, xlabel, ylabel);
 }
 
 
@@ -267,7 +277,7 @@ Histo2DPtr MC_BOOSTEDHBB::bookHisto(const string& name, const string& title,
     sprintf(buff, "events / %.2f / %.2f", xbinwidth, ybinwidth);
     string zlabel = buff;
 
-    return bookHisto2D(name, nxbins, xmin, xmax, nybins, ymin, ymax, xlabel, ylabel, zlabel, title);
+    return bookHisto2D(name, nxbins, xmin, xmax, nybins, ymin, ymax, title, xlabel, ylabel, zlabel);
 }
 
 
