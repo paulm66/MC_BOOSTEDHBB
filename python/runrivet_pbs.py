@@ -1,4 +1,4 @@
-#/usr/bin/env python
+#!/usr/bin/env python
 
 from subprocess import Popen
 from sys import argv, stdout
@@ -30,7 +30,7 @@ def runrivet_pbs(fhepmcnames):
 
 def main(args):
     if len(argv) < 2:
-        print "no madgraph output specified"
+        print "no hepmc output specified"
         exit()
 
     runrivet_pbs(args[1:])
