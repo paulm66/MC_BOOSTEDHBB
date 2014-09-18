@@ -48,7 +48,7 @@ void MC_BOOSTEDHBB::init() {
     MissingMomentum mmfs(FinalState(-4.2, 4.2, 0*GeV));
     addProjection(mmfs, "MissingMomentum");
 
-    addProjectoin(HeavyHadrons(), "HeavyHadrons");
+    addProjection(HeavyHadrons(), "HeavyHadrons");
 
     // calo jets constituents
     // TODO
@@ -71,40 +71,37 @@ void MC_BOOSTEDHBB::init() {
     // register 0.4 calo jets
     string s = "AntiKt04CaloJets";
     jetColls.push_back(s);
-    bookFourMomColl(s);
+    bookPartColl(s);
     minJetPtCut[s] = 25*GeV;
     addProjection(FastJets(caloParts, FastJets::ANTIKT, 0.4), s);
 
     // and corresponding b-tagged jets
-    bookFourMomColl("AntiKt04CaloJetsB");
-    bookFourMomPair("LeadingAntiKt04CaloJetsB");
+    bookPartColl("AntiKt04CaloJetsB");
 
 
     // register 1.0 calo jets
     s = "AntiKt10CaloJets";
     jetColls.push_back(s);
-    bookFourMomColl(s);
+    bookPartColl(s);
     minJetPtCut[s] = 250*GeV;
     addProjection(FastJets(caloParts, FastJets::ANTIKT, 1.0), s);
 
     // and corresponding b-tagged jets
-    bookFourMomColl("AntiKt10CaloJetsB");
+    bookPartColl("AntiKt10CaloJetsB");
 
     // register 0.3 track jets
     s = "AntiKt03TrackJets";
     jetColls.push_back(s);
-    bookFourMomColl(s);
+    bookPartColl(s);
     minJetPtCut[s] = 25*GeV;
     addProjection(FastJets(trackParts, FastJets::ANTIKT, 0.3), s);
 
     // and corresponding b-tagged jets
-    bookFourMomColl("AntiKt03TrackJetsB");
-    bookFourMomPair("LeadingAntiKt03TrackJetsB");
+    bookPartColl("AntiKt03TrackJetsB");
 
 
     // register leptons and met
-    bookFourMomColl("Leptons");
-    bookFourMomPair("Dilepton");
+    bookPartColl("Leptons");
     bookFourMom("MissingMomentum");
 
 
@@ -112,10 +109,8 @@ void MC_BOOSTEDHBB::init() {
     bookFourMom("Higgs");
     bookFourMomPair("HiggsTrackJets");
 
+    bookFourMomPair("LeadingBTaggedTrackJetsAndLeadingLepton");
     bookFourMomPair("BHadNearestJet");
-
-    bookFourMomPair("MinDeltaRLeptonTrackJetB");
-    bookFourMomPair("MinMassLeptonTrackJetB");
 
     return;
 }
@@ -145,25 +140,22 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
             vetoEvent;
     }
 
-    fillFourMomColl("Leptons", leptons, weight);
-    if (leptons.size() >= 2)
-        fillFourMomPair("Dilepton", leptons[0], leptons[1], weight);
+    fillPartColl("Leptons", leptons, weight);
 
-    fillFourMom("MissingMomentum", mm, weight);
+    fillFourMom("MissingMomentum", mm.mom(), weight);
 
     foreach (const string &name, jetColls) {
         const FastJets &fj =
             applyProjection<FastJets>(event, name);
         const Jets &jets = fj.jetsByPt(minJetPtCut[name]);
-        fillFourMomColl(name, jets, weight);
+        fillPartColl(name, jets, weight);
 
         Jets bjets;
         foreach (const Jet& jet, jets)
             if (jet.bTags().size()) bjets.push_back(jet);
 
-        fillFourMomColl(name + "B", bjets, weight);
+        fillPartColl(name + "B", bjets, weight);
     }
-
 
     // search for higgs: highest-pt akt10 jet matched to two b-tagged track jets
     Jets antiKt10CaloJets =
@@ -195,39 +187,46 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
     }
 
     if (higgs.pT()) {
-        fillFourMom("Higgs", higgs, weight);
-        fillFourMomPair("HiggsTrackJets", matchedTrackJets[0], matchedTrackJets[1], weight);
+        fillFourMom("Higgs", higgs.mom(), weight);
+        fillFourMomPair("HiggsTrackJets", matchedTrackJets[0].mom(), matchedTrackJets[1].mom(), weight);
     }
 
-    double drMin = -1, massMin = -1;
-    Jet minLepDrJet;
-    Jet minLepMassJet;
+    // treat leading b-tagged trackjets as higgs
+    // book kinematics with leading lepton(s)
+    Jets bjets;
     foreach(Jet &trackjet, antiKt03TrackJets) {
-        if (!trackjet.bTags().size())
-            continue;
+        if (trackjet.bTags().size())
+            bjets.push_back(trackjet);
+    }
 
-        if (drMin < 0) {
-            drMin = Rivet::deltaR(trackjet, leptons[0]);
-            massMin = (trackjet.momentum() + leptons[0].momentum()).mass();
-            continue;
+    if (bjets.size() >= 2)
+        fillFourMomPair("LeadingBTaggedTrackJetsAndLeadingLepton",
+                bjets[0].momentum() + bjets[1].momentum(),
+                leptons[0], weight);
+
+
+    // look at deltaR(b-hadron, trackjet)
+
+    const Particles& bhads =
+        applyProjection<HeavyHadrons>(event, "HeavyHadrons").bHadrons();
+
+    foreach (const Particle &bhad, bhads) {
+
+        // reset
+        Jet bestjet;
+        double drMin = -1;
+
+        foreach(Jet &trackjet, antiKt03TrackJets) {
+            if (drMin < 0) {
+                drMin = Rivet::deltaR(trackjet, bhad);
+                bestjet = trackjet;
+            }
+
+            bestjet = Rivet::deltaR(bhad, trackjet) < drMin ? trackjet : bestjet;
         }
 
-        double dr = Rivet::deltaR(trackjet, leptons[0]);
-        double mass = (trackjet.momentum() + leptons[0].momentum()).mass();
-
-        minLepDrJet = dr < drMin ? trackjet : minLepDrJet;
-        minLepMassJet = mass < massMin ? trackjet : minLepMassJet;
+        fillFourMomPair("BHadNearestJet", bhad.mom(), bestjet.mom(), weight);
     }
-
-    if (minLepDrJet.pT()) {
-        fillFourMomPair("MinDeltaRLeptonTrackJetB", leptons[0], minLepDrJet, weight);
-        fillFourMomPair("MinMassLeptonTrackJetB", leptons[0], minLepMassJet, weight);
-    }
-
-
-    // look at b hdrons
-    // TODO
-    // I was here.
 
     return;
 }
@@ -315,18 +314,17 @@ void MC_BOOSTEDHBB::bookFourMomPair(const string &name) {
 }
 
 
-void MC_BOOSTEDHBB::bookFourMomColl(const string &name) {
+void MC_BOOSTEDHBB::bookPartColl(const string &name) {
     bookFourMom(name);
+    bookFourMomPair(name + "LeadingPair");
 
-    // histos1D[name] = map<string, Histo1DPtr>();
     histos1D[name]["n"] = bookHisto(name + "_n", "multiplicity", "", 10, 0, 10);
 
     return;
 }
 
 
-template <class T>
-void MC_BOOSTEDHBB::fillFourMom(const string &name, const T &part, double weight) {
+void MC_BOOSTEDHBB::fillFourMom(const string &name, const FourMomentum &part, double weight) {
     MSG_DEBUG("Filling " << name << " histograms");
 
     histos1D[name]["pt"]->fill(part.pT(), weight);
@@ -338,27 +336,29 @@ void MC_BOOSTEDHBB::fillFourMom(const string &name, const T &part, double weight
 }
 
 
-template <class T, class S>
-void MC_BOOSTEDHBB::fillFourMomPair(const string &name,const T &p1, const S &p2, double weight) {
-    fillFourMom(name, p1.momentum() + p2.momentum(), weight);
+void MC_BOOSTEDHBB::fillFourMomPair(const string &name, const FourMomentum &p1, const FourMomentum &p2, double weight) {
+    fillFourMom(name, p1 + p2, weight);
 
-    double dr = Rivet::deltaR(p1.momentum(), p2.momentum());
-    double pt = (p1.momentum(), p2.momentum()).pT();
+    double dr = Rivet::deltaR(p1, p2);
+    double pt = (p1 + p2).pT();
 
     histos1D[name]["dr"]->fill(dr, weight);
     histos2D[name]["dr_pt"]->fill(pt, dr);
-    histos2D[name]["pt_pt"]->fill(p1.momentum().pT(), p2.momentum().pT());
+    histos2D[name]["pt_pt"]->fill(p1.pT(), p2.pT());
 
     return;
 }
 
 
 template <class T>
-void MC_BOOSTEDHBB::fillFourMomColl(const string &name, const vector<T> &parts, double weight) {
+void MC_BOOSTEDHBB::fillPartColl(const string &name, const vector<T> &parts, double weight) {
     histos1D[name]["n"]->fill(parts.size(), weight);
 
     foreach (const T &part, parts)
-        fillFourMom(name, part, weight);
+        fillFourMom(name, part.mom(), weight);
+
+    if (parts.size() >= 2)
+        fillFourMomPair(name + "LeadingPair", parts[0].mom(), parts[1].mom(), weight);
 
     return;
 }

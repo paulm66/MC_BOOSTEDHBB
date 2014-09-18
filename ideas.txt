@@ -6,5 +6,4 @@ to look at:
 - Higgs, Z, W mass window cuts
 - veto ttbar events in 2lepton channel with MET (hard cut, fraction of ht from
   met, etc)
-- ttbar is combinatorial: don't bin in lep pt
-- store outdgoing b-hadron deltaRs to jets
+- have runxxx_pbs.py scripts. how about local ones?

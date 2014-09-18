@@ -40,16 +40,21 @@ namespace Rivet {
 
             void bookFourMom(const string &name);
             void bookFourMomPair(const string &name);
-            void bookFourMomColl(const string &name);
+            void bookPartColl(const string &name);
+
+            void fillFourMom(const string &name,
+                    const FourMomentum &part,
+                    double weight);
+
+            void fillFourMomPair(const string &name,
+                    const FourMomentum &p1,
+                    const FourMomentum &p2,
+                    double weight);
 
             template <class T>
-            void fillFourMom(const string &name, const T &part, double weight);
-
-            template <class T, class S>
-            void fillFourMomPair(const string &name,const T &p1, const S &p2, double weight);
-
-            template <class T>
-            void fillFourMomColl(const string &name, const vector<T> &parts, double weight);
+            void fillPartColl(const string &name,
+                    const vector<T> &parts,
+                    double weight);
 
     };
 
