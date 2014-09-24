@@ -38,8 +38,6 @@ namespace Rivet {
 
 /// Book histograms and initialise projections before the run
 void MC_BOOSTEDHBB::init() {
-    getLog().setLevel(Log::DEBUG);
-
     ChargedLeptons clfs(FinalState(-2.5, 2.5, 25*GeV));
     addProjection(clfs, "ChargedLeptons");
 
