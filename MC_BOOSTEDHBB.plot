@@ -2,6 +2,7 @@
 # BEGIN PLOT /MC_BOOSTEDHBB/.*
 LogY=1
 Legend=1
+RatioPlot=0
 # END PLOT
 
 # 2D plots
