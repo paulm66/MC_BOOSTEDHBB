@@ -209,6 +209,7 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
     // within mass window
     Jet higgs;
     Jets matchedTrackJets;
+    bool foundHiggs = false;
     foreach (const Jet &calojet, antiKt10CaloJets) {
         matchedTrackJets.clear();
 
@@ -229,15 +230,18 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
 
         if (matchedTrackJets.size() >= 2) {
             higgs = calojet;
+            foundHiggs = true;
             break;
         }
     }
 
-    if (higgs.pT()) {
+    if (foundHiggs) {
+        MSG_DEBUG("Higgs candidate found");
+        fillFourMomPair("HiggsTrackJets", matchedTrackJets[0].mom(), matchedTrackJets[1].mom(), weight);
         fillFourMom("HiggsFatJet", higgs.mom(), weight);
-        fillFourMomPair("HiggsTrackJetPair", matchedTrackJets[0].mom(), matchedTrackJets[1].mom(), weight);
         fillFourMomPair("VBosonHiggs", higgs.mom(), vboson.mom(), weight);
-    }
+    } else
+        MSG_DEBUG("No Higgs candidate found");
 
 
     // treat leading b-tagged trackjets as higgs
@@ -248,14 +252,8 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
             bjets.push_back(trackjet);
     }
 
-    if (bjets.size() >= 2)
-        fillFourMomPair("LeadingBTaggedTrackJetsAndLeadingLepton",
-                bjets[0].momentum() + bjets[1].momentum(),
-                leptons[0], weight);
-
 
     // look at deltaR(b-hadron, jet)
-
     const Particles& bhads =
         applyProjection<HeavyHadrons>(event, "HeavyHadrons").bHadrons();
 
@@ -263,13 +261,13 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
     double drMin = -1;
     foreach (const Particle &bhad, bhads) {
 
-        foreach(Jet &calojet, antiKt03TrackJets) {
+        foreach(Jet &trackjet, antiKt03TrackJets) {
             if (drMin < 0) {
-                drMin = Rivet::deltaR(calojet, bhad);
-                bestjet = calojet;
+                drMin = Rivet::deltaR(trackjet, bhad);
+                bestjet = trackjet;
             }
 
-            bestjet = Rivet::deltaR(bhad, calojet) < drMin ? calojet : bestjet;
+            bestjet = Rivet::deltaR(bhad, trackjet) < drMin ? trackjet : bestjet;
         }
 
         if (drMin > 0)
@@ -291,19 +289,18 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
             fillFourMomComp("BHadVsNearestAntiKt04CaloJet", bhad.mom(), bestjet.mom(), weight);
 
         // reset
-        Jet bestjet;
-        double drMin = -1;
+        drMin = -1;
 
-        foreach(Jet &trackjet, antiKt03TrackJets) {
+        foreach(Jet &calojet, antiKt10CaloJets) {
             if (drMin < 0) {
-                drMin = Rivet::deltaR(trackjet, bhad);
-                bestjet = trackjet;
+                drMin = Rivet::deltaR(calojet, bhad);
+                bestjet = calojet;
             }
 
-            bestjet = Rivet::deltaR(bhad, trackjet) < drMin ? trackjet : bestjet;
+            bestjet = Rivet::deltaR(bhad, calojet) < drMin ? calojet : bestjet;
         }
 
-        fillFourMomComp("BHadNearestJet", bhad.mom(), bestjet.mom(), weight);
+        fillFourMomComp("BHadVsNearestAntiKt10CaloJet", bhad.mom(), bestjet.mom(), weight);
     }
 
     return;
@@ -461,6 +458,8 @@ void MC_BOOSTEDHBB::fillFourMomComp(const string &name, const FourMomentum &p1, 
 
 template <class T>
 void MC_BOOSTEDHBB::fillFourMomColl(const string &name, const vector<T> &parts, double weight) {
+
+    MSG_DEBUG("Filling " << parts.size() << " members of collection " << name);
     histos1D[name]["n"]->fill(parts.size(), weight);
 
     foreach (const T &part, parts)
