@@ -40,7 +40,7 @@ namespace Rivet {
 
 /// Book histograms and initialise projections before the run
 void MC_BOOSTEDHBB::init() {
-    getLog().setLevel(Log::DEBUG);
+    // getLog().setLevel(Log::DEBUG);
 
     ChargedLeptons clfs(FinalState(-2.5, 2.5, 25*GeV));
     addProjection(clfs, "ChargedLeptons");
@@ -209,7 +209,6 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
     // within mass window
     Jet higgs;
     Jets matchedTrackJets;
-    bool foundHiggs = false;
     foreach (const Jet &calojet, antiKt10CaloJets) {
         matchedTrackJets.clear();
 
@@ -230,12 +229,11 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
 
         if (matchedTrackJets.size() >= 2) {
             higgs = calojet;
-            foundHiggs = true;
             break;
         }
     }
 
-    if (foundHiggs) {
+    if (higgs.pT()) {
         MSG_DEBUG("Higgs candidate found");
         fillFourMomPair("HiggsTrackJets", matchedTrackJets[0].mom(), matchedTrackJets[1].mom(), weight);
         fillFourMom("HiggsFatJet", higgs.mom(), weight);
@@ -244,8 +242,6 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
         MSG_DEBUG("No Higgs candidate found");
 
 
-    // treat leading b-tagged trackjets as higgs
-    // book kinematics with leading lepton(s)
     Jets bjets;
     foreach(Jet &trackjet, antiKt03TrackJets) {
         if (trackjet.bTags().size())
