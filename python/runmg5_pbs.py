@@ -2,6 +2,31 @@
 
 defnevents = 1000000
 
+def mg5split(minvar, maxvar, vals):
+    procs = []
+    for i in range(len(vals)):
+        valmin = vals[i]
+        try:
+            valmax = vals[i+1]
+        except IndexError:
+            valmax = -1
+
+        name = "%s_%s%04d%s"  % (proc.name, minvar, valmin,
+                "_%s%04d" % valmax if valmax > 0 else "")
+
+        # need at least a shallow copy here.
+        d = dict(proc.runcarddict)
+
+        d[minvar] = valmin
+        d[maxvar] = valmax
+
+        procs.append(mg5proc(name, proc.cmd, d))
+
+        continue
+
+    return procs
+
+
 if __name__ == "__main__":
     from mg5procs import procdict
     from subprocess import Popen
