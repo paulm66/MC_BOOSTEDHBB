@@ -8,6 +8,13 @@ from time import sleep
 def runrivet_pbs(fhepmcnames):
     running = []
     for fhepmc in fhepmcnames:
+        if not fhepmc.endswith(".hepmc"):
+            print "Unrecognized file: %s." % fhepmc
+            print "Please provide a hepmc file."
+            print
+            stdout.flush()
+            continue
+
         fyoda = fhepmc.replace("hepmc", "yoda")
         flog = fhepmc.replace("hepmc", "rivet.log")
 

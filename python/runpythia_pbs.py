@@ -10,7 +10,8 @@ from time import sleep
 def runpythia_pbs(folder, nevt=25000):
     flhegz = "%s/Events/run_01/events.lhe.gz" % folder
 
-    fnamelhe = "%s/%s.lhe" % (folder, folder)
+    fnamebase = folder.split('/')[-1]
+    fnamelhe = "%s/%s.lhe" % (folder, fnamebase)
     flhe = open(fnamelhe, 'w')
 
     cmd = ["gunzip", "-c", flhegz]
@@ -18,6 +19,7 @@ def runpythia_pbs(folder, nevt=25000):
 
     p = Popen(cmd, stdout=flhe)
     p.wait()
+    flhe.close()
 
     flhe = open(fnamelhe, 'r')
     lines = flhe.readlines()
@@ -29,30 +31,35 @@ def runpythia_pbs(folder, nevt=25000):
     flhe.writelines(lines)
     flhe.close()
 
+    # TODO
+    # splitting turns out to be a bad idea.....
     # split the lhe file into smaller files with nevt events each
-    splitLHE.main(["-i", fnamelhe, "-n", str(nevt)])
+    # splitLHE.main(["-i", fnamelhe, "-n", str(nevt)])
 
-    flhenames = glob("%s/%s_*lhe" % (folder, folder))
+    # flhenames = glob("%s/%s_*lhe" % (folder, folder))
 
-    running = []
-    for i in range(len(flhenames)):
-        fin = flhenames[i]
-        fout = fin.replace("lhe", "hepmc")
-        flog = fin.replace("lhe", "pythia.log")
+    # running = []
+    # for i in range(len(flhenames)):
+    fin = fnamelhe
+    fout = fin.replace("lhe", "hepmc")
+    flog = fin.replace("lhe", "pythia.log")
 
-        cmd = "run-pythia -n 999999999 -l %s -o %s" % \
-                (fin, fout)
+    cmd = "run-pythia -n 999999999 -l %s -o %s" % \
+            (fin, fout)
 
-        running.append(pbssubmit("pythia.%s.%d" % (folder, i), cmd,
-            outfile=flog))
+    # running.append(pbssubmit("pythia.%s.%d" % (folder, i), cmd,
+        # outfile=flog))
 
-        sleep(1)
-        continue
+    p = pbssubmit("pythia.%s" % fnamebase, cmd, outfile=flog)
+    p.wait()
+    print p.stdout.read()
+    print p.stderr.read()
+    stdout.flush()
 
-    map(lambda p: p.wait(), running)
-    for p in running:
-        print p.stdout.read()
-        print p.stderr.read()
+    # map(lambda p: p.wait(), running)
+    # for p in running:
+        # print p.stdout.read()
+        # print p.stderr.read()
     
     return
 

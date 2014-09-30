@@ -146,29 +146,31 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
     const Particles &wmunubosons =
         applyProjection<WFinder>(event, "WmunuFinder").bosons();
 
+    // leptons
+    // TODO
+    // isolation?
+    const Particles &leptons =
+        applyProjection<ChargedLeptons>(event, "ChargedLeptons").particles();
+
+
     Particle vboson;
-    if (zeebosons.size())
+    if (zeebosons.size() && leptons.size() == 2)
         vboson = zeebosons[0];
-    else if (zmumubosons.size())
+    else if (zmumubosons.size() && leptons.size() == 2)
         vboson = zmumubosons[0];
-    else if (wenubosons.size())
+    else if (wenubosons.size() && leptons.size() == 1)
         vboson = wenubosons[0];
-    else if (wmunubosons.size())
+    else if (wmunubosons.size() && leptons.size() == 1)
         vboson = wmunubosons[0];
     else
         vetoEvent;
+
 
     if (vboson.pid() == 23)
         fillFourMom("ZBoson", vboson, weight);
     else
         fillFourMom("WBoson", vboson, weight);
 
-
-    // leptons
-    // TODO
-    // isolation?
-    const Particles &leptons =
-        applyProjection<ChargedLeptons>(event, "ChargedLeptons").particles();
 
     fillFourMomColl("Leptons", leptons, weight);
 
@@ -380,6 +382,12 @@ void MC_BOOSTEDHBB::bookFourMomPair(const string &name) {
     histos2D[name]["pt1_vs_pt2"] = bookHisto(name + "_pt1_vs_pt2", name,
             ptlab, 50, 0, 2000*GeV,
             ptlab, 50, 0, 2000*GeV);
+
+    // hack:
+    // change the mass histogram to have a higher cutoff for pairs of
+    // particles
+    removeAnalysisObject(histos1D[name]["m"]);
+    histos1D[name]["m"] = bookHisto(name + "_m", name, mlab, 50, 0, 5000*GeV);
 
     return;
 }
