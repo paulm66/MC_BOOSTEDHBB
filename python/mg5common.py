@@ -4,7 +4,9 @@ from subprocess import Popen, PIPE
 from sys import stdout
 import re
 
-smheader = """import model sm
+smheader = \
+"""\
+import model sm
 define l+ e+ mu+ ta+
 define l- e- mu- ta-
 define l l+ l-
@@ -13,9 +15,11 @@ define v~ ve~ vm~ vt~
 define vall v v~
 """
 
+defnevents = 25000
+
 class mg5proc:
     def __init__(self, name, cmd,
-            runcarddict={"nevents": 10000}):
+            runcarddict={"nevents": defnevents}):
 
         self.name = name
         self.cmd = cmd
@@ -100,3 +104,25 @@ class mg5proc:
         evgenproc = Popen(exe, stdin=PIPE, stdout=outf, stderr=outf)
 
         return evgenproc
+
+
+def mg5split(proc, minvar, maxvar, vals):
+    procs = []
+    for i in range(1, len(vals)):
+        valmin = vals[i-1]
+        valmax = vals[i]
+
+        name = "%s_%s%.2f_%s%.2f" % \
+                (proc.name, minvar, valmin, maxvar, valmax)
+
+        # need at least a shallow copy here.
+        d = dict(proc.runcarddict)
+
+        d[minvar] = valmin
+        d[maxvar] = valmax
+
+        procs.append(mg5proc(name, proc.cmd, d))
+
+        continue
+
+    return procs
