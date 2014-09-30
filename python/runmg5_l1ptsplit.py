@@ -1,6 +1,16 @@
+#!/usr/bin/env python
+
 from mg5common import mg5proc
 
 defptl1s = [0, 100, 200, 400]
+ptl1splitdict = {
+        "WH": defptl1s,
+        "ZH": defptl1s,
+        "Wbb": defptl1s,
+        "Zbb": defptl1s,
+        "ttbar": [0, 25, 35, 50, 75, 100, 150, 200, 250, 300, 400, 500]
+        }
+
 defnevents = 25000
 
 def ptl1split(proc, ptl1s):
@@ -13,7 +23,7 @@ def ptl1split(proc, ptl1s):
             ptl1max = -1
 
         name = "%s_ptl1min%04d%s"  % (proc.name, ptl1min,
-                "_ptl1max%04d" % ptl1max if ptl1max != -1 else "")
+                "_ptl1max%04d" % ptl1max if ptl1max > 0 else "")
 
         # need at least a shallow copy here.
         d = dict(proc.runcarddict)
@@ -45,7 +55,7 @@ if __name__ == "__main__":
         procs = map(procdict.get, argv[1:])
 
     # list of list of ptl1split procs
-    ptl1splitprocs = map(lambda p: ptl1split(p, defptl1s), procs)
+    ptl1splitprocs = map(lambda p: ptl1split(p, ptl1splitdict[p.name]), procs)
 
     # list of all procs to run
     procs = sum(ptl1splitprocs[1:], ptl1splitprocs[0])
@@ -60,8 +70,7 @@ if __name__ == "__main__":
     running = []
     for p in procs:
         # run on PBS cluster.
-        running.append(p.generate_events())
-        # running.append(p.generate_events(["--cluster"]))
+        running.append(p.generate_events(["--cluster"]))
 
     nprocs = len(running)
     while nprocs > 0:

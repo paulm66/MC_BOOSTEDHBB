@@ -1,5 +1,9 @@
 to look at:
 
-- invariant mass/dr of leptonis and both b jets (reduce boosted top background)
-- track jets look promising, possibly matched to large-r jets
+- invariant mass/dr of leptons and both b jets (reduce boosted top background)
 - bin events in nlep, njet, nbjet, met
+- veto ttbar events in 2lepton channel with MET (hard cut, fraction of ht from
+  met, etc)
+- have runxxx_pbs.py scripts. how about local ones?
+- akt4 and akt3 dijet mass peaks are right at higgs mass with current pt
+  cuts...

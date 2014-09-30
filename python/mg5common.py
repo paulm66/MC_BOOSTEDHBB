@@ -91,7 +91,9 @@ class mg5proc:
         print "starting event generation for %s." % self.name
         stdout.flush()
 
-        exe = ["./%s/bin/generate_events" % self.name, "-f"] + opts
+        opts.append("-f")
+
+        exe = ["./%s/bin/generate_events" % self.name] + opts
         print " ".join(exe); print; stdout.flush()
 
         outf = open("%s/generate_events.log" % self.name, 'w')
