@@ -7,3 +7,10 @@ to look at:
 - have runxxx_pbs.py scripts. how about local ones?
 - akt4 and akt3 dijet mass peaks are right at higgs mass with current pt
   cuts...
+
+- higgs, boson pt balance to reject ttbar
+- only hack VH mass plot, not the rest of the pairs...
+- fix labels, etc in plotting
+
+- fix madgraph to generate lhe version 1.0 files
+- split events into 0-, 1-, and 2-leptons
