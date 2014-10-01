@@ -19,7 +19,7 @@ defnevents = 25000
 
 class mg5proc:
     def __init__(self, name, cmd,
-            runcarddict={"nevents": defnevents}):
+            runcarddict={"nevents": defnevents, "lhe_version": "1.0"}):
 
         self.name = name
         self.cmd = cmd

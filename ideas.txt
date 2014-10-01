@@ -11,3 +11,5 @@ to look at:
 - higgs, boson pt balance to reject ttbar
 - only hack VH mass plot, not the rest of the pairs...
 - fix labels, etc in plotting
+
+- fix madgraph to generate lhe version 1.0 files
