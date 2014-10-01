@@ -8,13 +8,13 @@ procdict = {
 "generate p p > w+ b b~, w+ > l+ v $ h; add process p p > w- b b~, w- > l- v~ $ h",
 
 "Zbb":
-"generate p p > z b b~, z > l l $ h",
+"generate p p > z b b~, z > l l $ h; add process p p > z b b~, z > v v~ $ h",
 
 "WH":
 "generate p p > w+ h, w+ > l+ v, h > b b~; add process p p > w- h, w- > l- v~, h > b b~",
 
 "ZH":
-"generate p p > z h, z > l l, h > b b~"
+"generate p p > z h, z > l l, h > b b~; add process p p > z h, z > v v~, h > b b~"
 }
 
 for name, cmd in procdict.iteritems():
