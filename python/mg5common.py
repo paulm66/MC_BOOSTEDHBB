@@ -4,30 +4,21 @@ from subprocess import Popen, PIPE
 from sys import stdout
 import re
 
-smheader = \
-"""\
-import model sm
-"""
-
 defnevents = 25000
 
+defruncarddict = {
+    "nevents": defnevents,
+    "lhe_version": "1.0",
+}
+
 class mg5proc:
-    def __init__(self, name, cmd,
-            runcarddict={"nevents": defnevents, "lhe_version": "1.0"}):
+    def __init__(self, name, cmd, runcarddict=defruncarddict)
 
         self.name = name
         self.cmd = cmd
         self.runcarddict = runcarddict
 
         return
-
-
-    def nevents(self, n=-1):
-        if n < 0:
-            return self.runcarddict["nevents"]
-        else:
-            self.runcarddict["nevents"] = n
-            return n
 
 
     def initialize(self):

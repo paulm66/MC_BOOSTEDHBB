@@ -17,7 +17,6 @@ if __name__ == "__main__":
         procs = map(procdict.get, argv[1:])
 
     for p in procs:
-        p.nevents(defnevents)
         p.initialize()
 
     # remove spurious leftover files

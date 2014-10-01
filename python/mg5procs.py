@@ -1,4 +1,4 @@
-from mg5common import mg5proc, smheader
+from mg5common import mg5proc
 
 procdicttmp = {
 "ttbar":
@@ -36,4 +36,4 @@ add process p p > z h, z > vl vl~, h > b b~
 
 procdict = {}
 for name, cmd in procdicttmp.iteritems():
-    procdict[name] = mg5proc(name, smheader + cmd)
+    procdict[name] = mg5proc(name, cmd)
