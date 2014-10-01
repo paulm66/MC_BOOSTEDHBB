@@ -109,8 +109,9 @@ void MC_BOOSTEDHBB::init() {
 
 
     // register Z and W bosons
-    bookFourMom("ZBoson");
-    bookFourMom("WBoson");
+    bookFourMom("ZllBoson");
+    bookFourMom("WlnuBoson");
+    bookFourMom("ZnunuBoson");
 
     // register leptons and met
     bookFourMomColl("Leptons");
@@ -128,7 +129,6 @@ void MC_BOOSTEDHBB::init() {
     // pair
     removeAnalysisObject(histos1D["VBosonHiggs"]["m"]);
     histos1D["VBosonHiggs"]["m"] = bookHisto("VBosonHiggs_m", "VBosonHiggs", mlab, 50, 0, 5000*GeV);
-
 
     bookFourMomComp("BHadVsNearestAntiKt03TrackJet");
     bookFourMomComp("BHadVsNearestAntiKt04CaloJet");
@@ -159,6 +159,9 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
     const Particles &leptons =
         applyProjection<ChargedLeptons>(event, "ChargedLeptons").particles();
 
+    const Particle& mm =
+        Particle(0, -applyProjection<MissingMomentum>(event, "MissingMomentum").visibleMomentum());
+
 
     Particle vboson;
     if (zeebosons.size() && leptons.size() == 2)
@@ -169,20 +172,19 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
         vboson = wenubosons[0];
     else if (wmunubosons.size() && leptons.size() == 1)
         vboson = wmunubosons[0];
-    else
-        vetoEvent;
+    else if (leptons.size() == 0 && mm.pT() > 30*GeV)
+        vboson = Particle(23, mm);
 
 
     if (vboson.pid() == 23)
-        fillFourMom("ZBoson", vboson, weight);
+        fillFourMom("ZllBoson", vboson, weight);
+    else if (vboson.abspid() == 24)
+        fillFourMom("WlnuBoson", vboson, weight);
     else
-        fillFourMom("WBoson", vboson, weight);
+        fillFourMom("ZnunuBoson", vboson, weight);
 
 
     fillFourMomColl("Leptons", leptons, weight);
-
-    const Particle& mm =
-        Particle(0, -applyProjection<MissingMomentum>(event, "MissingMomentum").visibleMomentum());
 
     fillFourMom("MissingMomentum", mm.mom(), weight);
 
