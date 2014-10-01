@@ -18,7 +18,7 @@ add process p p > w- b b~, w- > l- vl~ $ h
 "Zbb":
 """\
 generate p p > z b b~, z > l+ l- $ h;
-add process p p > z b b~, z > vl vl~ $ h
+# add process p p > z b b~, z > vl vl~ $ h
 """,
 
 "WH":
@@ -30,7 +30,7 @@ add process p p > w- h, w- > l- vl~, h > b b~
 "ZH":
 """\
 generate p p > z h, z > l+ l-, h > b b~;
-add process p p > z h, z > vl vl~, h > b b~
+# add process p p > z h, z > vl vl~, h > b b~
 """
 }
 
