@@ -123,6 +123,13 @@ void MC_BOOSTEDHBB::init() {
 
     bookFourMomPair("VBosonHiggs");
 
+    // hack:
+    // change the mass histogram to have a higher cutoff for the VH
+    // pair
+    removeAnalysisObject(histos1D["VBosonHiggs"]["m"]);
+    histos1D["VBosonHiggs"]["m"] = bookHisto("VBosonHiggs_m", "VBosonHiggs", mlab, 50, 0, 5000*GeV);
+
+
     bookFourMomComp("BHadVsNearestAntiKt03TrackJet");
     bookFourMomComp("BHadVsNearestAntiKt04CaloJet");
     bookFourMomComp("BHadVsNearestAntiKt10CaloJet");
@@ -383,11 +390,10 @@ void MC_BOOSTEDHBB::bookFourMomPair(const string &name) {
             ptlab, 50, 0, 2000*GeV,
             ptlab, 50, 0, 2000*GeV);
 
-    // hack:
-    // change the mass histogram to have a higher cutoff for pairs of
-    // particles
-    removeAnalysisObject(histos1D[name]["m"]);
-    histos1D[name]["m"] = bookHisto(name + "_m", name, mlab, 50, 0, 5000*GeV);
+    // pt balance
+    histos1D[name]["pt1_minus_pt2"] = bookHisto(name + "_pt1_minus_pt2", name,
+            ptlab, 50, -1000*GeV, 1000*GeV);
+
 
     return;
 }
@@ -442,6 +448,7 @@ void MC_BOOSTEDHBB::fillFourMomPair(const string &name, const FourMomentum &p1, 
     histos1D[name]["dr"]->fill(dr, weight);
     histos2D[name]["dr_vs_pt"]->fill(pt, dr);
     histos2D[name]["pt1_vs_pt2"]->fill(p1.pT(), p2.pT());
+    histos1D[name]["pt1_minus_pt2"]->fill(p1.pT() - p2.pT());
 
     return;
 }
