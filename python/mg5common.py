@@ -7,8 +7,6 @@ import re
 smheader = \
 """\
 import model sm
-define l l+ l-
-define vall vl vl~
 """
 
 defnevents = 25000
