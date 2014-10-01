@@ -81,6 +81,7 @@ class mg5proc:
         meconfig = open("%s/Cards/me5_configuration.txt" % self.name, "w")
         meconfig.write("cluster_type=pbs\n")
         meconfig.write("cluster_queue=short6\n")
+        meconfig.write("cluster_status_update=60 15\n")
         meconfig.close()
 
 
