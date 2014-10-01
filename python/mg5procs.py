@@ -6,6 +6,7 @@ procdict = {
 generate p p > t t~, t > l+ v b, t~ > l- v~ b~;
 add process p p > t t~, t > l+ v b, t~ > j j b~;
 add process p p > t t~, t > j j b, t~ > l- v~ b~;
+add process p p > t t~, t > j j b, t~ > j j b~;
 """,
 
 "Wbb":
