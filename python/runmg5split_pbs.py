@@ -22,6 +22,11 @@ if __name__ == "__main__":
     else:
         procs = map(procdict.get, argv[1:])
 
+    for p in procs:
+        p.runcarddict["xptb"] = 15
+        p.runcarddict["etab"] = 4
+        p.runcarddict["xptl"] = 15
+
     # list of list of split procs
     splitprocs = map(lambda p: mg5split(p, "drbb", "drbbmax", defdrbbs), procs)
 

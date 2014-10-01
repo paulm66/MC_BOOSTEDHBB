@@ -64,8 +64,7 @@ class mg5proc:
             haskey = False
             for key, v in self.runcarddict.iteritems():
                 if " %s " % key in line:
-                    val = ("%s" % v).rjust(8)
-                    runcard.write("%s = %s\n" % (val, key))
+                    runcard.write(" %s = %s\n" % (v, key))
                     haskey = True
                     break
 
