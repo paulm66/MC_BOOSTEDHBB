@@ -1,6 +1,6 @@
 from mg5common import mg5proc, smheader
 
-procdict = {
+procdicttmp = {
 "ttbar":
 """\
 generate p p > t t~, t > l+ vl b, t~ > l- vl~ b~;
@@ -34,5 +34,6 @@ add process p p > z h, z > vl vl~, h > b b~
 """
 }
 
-for name, cmd in procdict.iteritems():
+procdict = {}
+for name, cmd in procdicttmp.iteritems():
     procdict[name] = mg5proc(name, smheader + cmd)

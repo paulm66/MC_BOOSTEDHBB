@@ -17,7 +17,7 @@ if __name__ == "__main__":
         exit()
 
     elif "all" in argv:
-        procs = procdict.itervalues()
+        procs = procdict.values()
 
     else:
         procs = map(procdict.get, argv[1:])
