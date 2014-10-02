@@ -217,14 +217,10 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
     // search for higgs:
     // highest-pt akt10 jet
     // matched to two b-tagged track jets
-    // within mass window
     Jet higgs;
     Jets matchedTrackJets;
     foreach (const Jet &calojet, antiKt10CaloJets) {
         matchedTrackJets.clear();
-
-        if (abs(calojet.mass() - 125*GeV) > 25*GeV)
-            continue;
 
         foreach (const Jet &trackjet, antiKt03TrackJets) {
             // is it near the calojet?

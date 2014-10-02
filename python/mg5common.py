@@ -12,7 +12,7 @@ defruncarddict = {
 }
 
 class mg5proc:
-    def __init__(self, name, cmd, runcarddict=defruncarddict)
+    def __init__(self, name, cmd, runcarddict=defruncarddict):
 
         self.name = name
         self.cmd = cmd

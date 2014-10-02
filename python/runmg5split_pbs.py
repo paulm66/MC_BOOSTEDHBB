@@ -37,7 +37,9 @@ if __name__ == "__main__":
     running = []
     for p in procs:
         # run on PBS cluster.
-        running.append(p.generate_events(["--cluster"]))
+        # running.append(p.generate_events(["--cluster"]))
+        # don't run on PBS cluster.
+        running.append(p.generate_events())
 
     nprocs = len(running)
     while nprocs > 0:
