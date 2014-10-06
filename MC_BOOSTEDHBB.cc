@@ -85,11 +85,13 @@ void MC_BOOSTEDHBB::init() {
     trackParts.addVetoOnThisFinalState(leptonsAndNeutrinos);
 
 
+    /*
     // register 0.4 calo jets
     bookFourMomColl("akt04c_j");
     bookFourMomColl("akt04c_b");
     bookFourMomPair("akt04c_jj");
     addProjection(FastJets(caloParts, FastJets::ANTIKT, 0.4), "AntiKt04CaloJets");
+    */
 
     // register 1.0 calo jets
     // bookFourMomColl("akt10c_j");
@@ -112,7 +114,7 @@ void MC_BOOSTEDHBB::init() {
 
     // register special collections
     // bookFourMomPair("higgs_tjs");
-    bookFourMom("higgs_cj");
+    bookFourMom("higgs");
     bookFourMomPair("vboson_higgs");
 
     // bookFourMomComp("bhad_akt03t");
@@ -176,7 +178,7 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
     const Jets& akt03tbjs = bTagged(akt03tjs);
 
     if (akt03tbjs.size() == 0)
-        channel += "0b";
+        vetoEvent;
     else if (akt03tbjs.size() == 1)
         channel += "1b";
     else if (akt03tbjs.size() >= 2)
@@ -194,6 +196,7 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
         fillFourMomPair(channel, "akt03t_jj", akt03tjs[0].mom(), akt03tjs[1].mom(), weight);
 
 
+    /*
     const Jets& akt04cjs =
         applyProjection<FastJets>(event, "AntiKt04CaloJets").jetsByPt(25*GeV);
 
@@ -208,19 +211,20 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
         fillFourMomPair(channel, "akt04c_jj", akt04cbjs[0].mom(), akt04cjs[0].mom(), weight);
     else if (akt04cjs.size() >= 2)
         fillFourMomPair(channel, "akt04c_jj", akt04cjs[0].mom(), akt04cjs[1].mom(), weight);
+    */
 
     const Jets& akt10cjs =
         applyProjection<FastJets>(event, "AntiKt10CaloJets").jetsByPt(25*GeV);
 
-    const Jets& akt10cbjs = bTagged(akt10cjs);
+    // const Jets& akt10cbjs = bTagged(akt10cjs);
 
-    fillFourMomColl(channel, "akt10c_j", akt10cjs, weight);
-    fillFourMomColl(channel, "akt10c_b", akt10cbjs, weight);
+    // fillFourMomColl(channel, "akt10c_j", akt10cjs, weight);
+    // fillFourMomColl(channel, "akt10c_b", akt10cbjs, weight);
 
 
     fillFourMom(channel, "vboson", vboson, weight);
-    fillFourMomColl(channel, "leptons", leptons, weight);
-    fillFourMom(channel, "met", mm.mom(), weight);
+    // fillFourMomColl(channel, "leptons", leptons, weight);
+    // fillFourMom(channel, "met", mm.mom(), weight);
 
 
     // very simple boosted higgs tagging
@@ -246,14 +250,14 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
 
     if (higgs.pT()) {
         MSG_DEBUG("Higgs candidate found");
-        fillFourMomPair(channel, "higgs_tjs", matchedTrackJets[0].mom(), matchedTrackJets[1].mom(), weight);
-        fillFourMom(channel, "higgs_cj", higgs.mom(), weight);
+        // fillFourMomPair(channel, "higgs_tjs", matchedTrackJets[0].mom(), matchedTrackJets[1].mom(), weight);
+        fillFourMom(channel, "higgs", higgs.mom(), weight);
         fillFourMomPair(channel, "vboson_higgs", vboson.mom(), higgs.mom(), weight);
     } else
         MSG_DEBUG("No Higgs candidate found");
 
 
-
+    /*
     // look at deltaR(b-hadron, jet)
     const Particles& bhads =
         applyProjection<HeavyHadrons>(event, "HeavyHadrons").bHadrons();
@@ -291,6 +295,7 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
         if (drMin > 0)
             fillFourMomComp(channel, "bhad_akt04c", bhad.mom(), bestjet.mom(), weight);
     }
+    */
 
     return;
 }
@@ -427,8 +432,8 @@ void MC_BOOSTEDHBB::bookFourMomComp(const string& name) {
 void MC_BOOSTEDHBB::bookFourMomColl(const string& name) {
     bookFourMom(name);
 
-    bookFourMom("leading " + name);
-    bookFourMom("subleading " + name);
+    // bookFourMom(name + "0");
+    // bookFourMom(name + "1");
 
     foreach (const string& chan, channels) {
         histos1D[chan][name]["n"] = bookHisto(chan + "_" + name + "_n", "multiplicity", "", 10, 0, 10);
@@ -488,11 +493,13 @@ void MC_BOOSTEDHBB::fillFourMomColl(const string& channel, const string& name, c
     foreach (const T& p, ps)
         fillFourMom(channel, name, p.mom(), weight);
 
+    /*
     if (ps.size())
-        fillFourMom(channel, "leading " + name, ps[0].mom(), weight);
+        fillFourMom(channel, name + "0", ps[0].mom(), weight);
 
     if (ps.size() >= 2)
-        fillFourMom(channel, "subleading " + name, ps[1].mom(), weight);
+        fillFourMom(channel, name + "1", ps[1].mom(), weight);
+    */
 
     return;
 }
