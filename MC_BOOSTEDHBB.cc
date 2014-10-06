@@ -43,13 +43,10 @@ void MC_BOOSTEDHBB::init() {
     // getLog().setLevel(Log::DEBUG);
 
 
-    bookChannel("0l0b");
     bookChannel("0l1b");
     bookChannel("0l2b");
-    bookChannel("1l0b");
     bookChannel("1l1b");
     bookChannel("1l2b");
-    bookChannel("2l0b");
     bookChannel("2l1b");
     bookChannel("2l2b");
 
@@ -95,8 +92,8 @@ void MC_BOOSTEDHBB::init() {
     addProjection(FastJets(caloParts, FastJets::ANTIKT, 0.4), "AntiKt04CaloJets");
 
     // register 1.0 calo jets
-    bookFourMomColl("akt10c_j");
-    bookFourMomColl("akt10c_b");
+    // bookFourMomColl("akt10c_j");
+    // bookFourMomColl("akt10c_b");
     addProjection(FastJets(caloParts, FastJets::ANTIKT, 1.0), "AntiKt10CaloJets");
 
     // register 0.3 track jets
@@ -109,17 +106,17 @@ void MC_BOOSTEDHBB::init() {
     bookFourMom("vboson");
 
     // register leptons and met
-    bookFourMomColl("leptons");
-    bookFourMom("met");
+    // bookFourMomColl("leptons");
+    // bookFourMom("met");
 
 
     // register special collections
-    bookFourMomPair("higgs_tjs");
+    // bookFourMomPair("higgs_tjs");
     bookFourMom("higgs_cj");
     bookFourMomPair("vboson_higgs");
 
-    bookFourMomComp("bhad_akt03t");
-    bookFourMomComp("bhad_akt04c");
+    // bookFourMomComp("bhad_akt03t");
+    // bookFourMomComp("bhad_akt04c");
 
     return;
 }
