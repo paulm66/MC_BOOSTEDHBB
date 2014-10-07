@@ -3,7 +3,7 @@
 from mg5common import mg5proc, mg5split
 
 # -1 -> no max value
-defptbs = [15, 25, 30, 40, 50, 75, 100, 125, 150, 200, 300, 500, 750, -1]
+defptbs = [15, 25, 50, 75, 100, 150, 250, 500, -1]
 
 if __name__ == "__main__":
     from mg5procs import procdict
