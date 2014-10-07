@@ -214,7 +214,7 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
     */
 
     const Jets& akt10cjs =
-        applyProjection<FastJets>(event, "AntiKt10CaloJets").jetsByPt(25*GeV);
+        applyProjection<FastJets>(event, "AntiKt10CaloJets").jetsByPt(250*GeV);
 
     // const Jets& akt10cbjs = bTagged(akt10cjs);
 
