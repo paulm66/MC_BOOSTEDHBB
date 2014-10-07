@@ -3,7 +3,7 @@
 from mg5common import mg5proc, mg5split
 
 # -1 -> no max value
-defdrbbs = [0.0, 0.4, 0.8, 1.2, 1.6, 2.0, 3.0, -1]
+defptbs = [15, 25, 30, 40, 50, 75, 100, 125, 150, 200, 300, 500, 750, -1]
 
 if __name__ == "__main__":
     from mg5procs import procdict
@@ -23,7 +23,7 @@ if __name__ == "__main__":
 
 
     # list of list of split procs
-    splitprocs = map(lambda p: mg5split(p, "drbb", "drbbmax", defdrbbs), procs)
+    splitprocs = map(lambda p: mg5split(p, "ptb", "ptbmax", defptbs), procs)
 
     # list of all procs to run
     procs = sum(splitprocs[1:], splitprocs[0])
@@ -37,9 +37,7 @@ if __name__ == "__main__":
     running = []
     for p in procs:
         # run on PBS cluster.
-        # running.append(p.generate_events(["--cluster"]))
-        # don't run on PBS cluster.
-        running.append(p.generate_events())
+        running.append(p.generate_events(["--cluster"]))
 
     nprocs = len(running)
     while nprocs > 0:

@@ -24,7 +24,6 @@ if __name__ == "__main__":
 
     running = []
     for p in procs:
-        opts = ["--nb-cores=1"]
         # run on PBS cluster.
         opts = ["--cluster"]
         running.append(p.generate_events(opts))
