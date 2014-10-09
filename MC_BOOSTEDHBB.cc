@@ -196,25 +196,29 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
     foreach (const Jet& cj, akt10cjs) {
         matchedTrackJets.clear();
 
-        foreach (const Jet& tj, akt03tbjs) {
+        int btags = 0;
+        foreach (const Jet& tj, akt03tjs) {
             // is it near the calojet?
             if (Rivet::deltaR(cj, tj) < 1.0)
                 matchedTrackJets.push_back(tj);
         }
 
-        if (matchedTrackJets.size() >= 2) {
+        // require at least two jets and all b-tagged track jets to be
+        // associated with the fat jet
+        if (matchedTrackJets.size() >= 2 && btags == akt03tbjs.size()) {
             higgs = cj;
             break;
         }
     }
+
 
     if (!higgs.pT()) {
         MSG_DEBUG("No Higgs candidate found");
         vetoEvent;
     }
 
-
     MSG_DEBUG("Higgs candidate found");
+
     // fillFourMomPair(channel, "higgs_tjs", matchedTrackJets[0].mom(), matchedTrackJets[1].mom(), weight);
     fillFourMom(channel, "higgs", higgs.mom(), weight);
     fillFourMomPair(channel, "vboson_higgs", vboson.mom(), higgs.mom(), weight);
@@ -260,7 +264,6 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
     fillFourMom(channel, "vboson", vboson, weight);
     // fillFourMomColl(channel, "leptons", leptons, weight);
     // fillFourMom(channel, "met", mm.mom(), weight);
-
 
 
     /*
