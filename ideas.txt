@@ -12,5 +12,4 @@ to look at:
 - only hack VH mass plot, not the rest of the pairs...
 - fix labels, etc in plotting
 
-- fix madgraph to generate lhe version 1.0 files
 - split events into 0-, 1-, and 2-leptons

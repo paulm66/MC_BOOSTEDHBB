@@ -2,12 +2,9 @@
 
 from subprocess import Popen
 from sys import argv, stdout
-import splitLHE
-from glob import glob
 from pbssubmit import pbssubmit
-from time import sleep
 
-def runpythia_pbs(folder, nevt=25000):
+def runpythia_pbs(folder):
     flhegz = "%s/Events/run_01/events.lhe.gz" % folder
 
     fnamebase = folder.split('/')[-1]
@@ -25,21 +22,6 @@ def runpythia_pbs(folder, nevt=25000):
     lines = flhe.readlines()
     flhe.close()
 
-    # pythia doesn't like LHE version 3.0 for some reason...
-    flhe = open(fnamelhe, 'w')
-    lines[0] = lines[0].replace("3.0", "1.0")
-    flhe.writelines(lines)
-    flhe.close()
-
-    # TODO
-    # splitting turns out to be a bad idea.....
-    # split the lhe file into smaller files with nevt events each
-    # splitLHE.main(["-i", fnamelhe, "-n", str(nevt)])
-
-    # flhenames = glob("%s/%s_*lhe" % (folder, folder))
-
-    # running = []
-    # for i in range(len(flhenames)):
     fin = fnamelhe
     fout = fin.replace("lhe", "hepmc")
     flog = fin.replace("lhe", "pythia.log")
@@ -47,20 +29,12 @@ def runpythia_pbs(folder, nevt=25000):
     cmd = "run-pythia -n 999999999 -l %s -o %s" % \
             (fin, fout)
 
-    # running.append(pbssubmit("pythia.%s.%d" % (folder, i), cmd,
-        # outfile=flog))
-
     p = pbssubmit("pythia.%s" % fnamebase, cmd, outfile=flog)
     p.wait()
     print p.stdout.read()
     print p.stderr.read()
     stdout.flush()
 
-    # map(lambda p: p.wait(), running)
-    # for p in running:
-        # print p.stdout.read()
-        # print p.stderr.read()
-    
     return
 
 

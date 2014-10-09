@@ -3,8 +3,7 @@
 from mg5common import mg5proc, mg5split
 
 # -1 -> no max value
-defdrbbs = [0.0, 0.4, 0.8, 1.2, 1.6, 2.0, 3.0, -1]
-defnevents = 25000
+defptbs = [15, 25, 50, 75, 100, 150, 250, 500, -1]
 
 if __name__ == "__main__":
     from mg5procs import procdict
@@ -17,39 +16,24 @@ if __name__ == "__main__":
         exit()
 
     elif "all" in argv:
-        procs = procdict.itervalues()
+        procs = procdict.values()
 
     else:
         procs = map(procdict.get, argv[1:])
 
-    for p in procs:
-        p.runcarddict["xptb"] = 15
-        p.runcarddict["etab"] = 4
-        p.runcarddict["xptl"] = 15
 
     # list of list of split procs
-    splitprocs = map(lambda p: mg5split(p, "drbb", "drbbmax", defdrbbs), procs)
+    splitprocs = map(lambda p: mg5split(p, "ptb", "ptbmax", defptbs), procs)
 
     # list of all procs to run
     procs = sum(splitprocs[1:], splitprocs[0])
 
     for p in procs:
-        p.nevents(defnevents)
         p.initialize()
 
     # remove spurious leftover files
     Popen(["rm", "py.py"]).wait()
 
-    running = []
-    for p in procs:
-        # run on PBS cluster.
-        running.append(p.generate_events(["--cluster"]))
+    map(mg5proc.generate_events, procs)
 
-    nprocs = len(running)
-    while nprocs > 0:
-        nprocs = sum(map(lambda p: bool(p.poll()), running))
-        print "%d processes still running." % nprocs
-        stdout.flush()
-        sleep(30)
-
-    print "all event generation complete."
+    print "all event generation jobs submitted."

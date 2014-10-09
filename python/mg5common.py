@@ -1,39 +1,25 @@
 # mg5common.py
 
 from subprocess import Popen, PIPE
+from pbssubmit import pbssubmit
 from sys import stdout
 import re
 
-smheader = \
-"""\
-import model sm
-define l+ e+ mu+ ta+
-define l- e- mu- ta-
-define l l+ l-
-define v ve vm vt
-define v~ ve~ vm~ vt~
-define vall v v~
-"""
-
 defnevents = 25000
 
+defruncarddict = {
+    "nevents": defnevents,
+    "lhe_version": "1.0",
+}
+
 class mg5proc:
-    def __init__(self, name, cmd,
-            runcarddict={"nevents": defnevents, "lhe_version": "1.0"}):
+    def __init__(self, name, cmd, runcarddict=defruncarddict):
 
         self.name = name
         self.cmd = cmd
         self.runcarddict = runcarddict
 
         return
-
-
-    def nevents(self, n=-1):
-        if n < 0:
-            return self.runcarddict["nevents"]
-        else:
-            self.runcarddict["nevents"] = n
-            return n
 
 
     def initialize(self):
@@ -81,6 +67,7 @@ class mg5proc:
         meconfig = open("%s/Cards/me5_configuration.txt" % self.name, "w")
         meconfig.write("cluster_type=pbs\n")
         meconfig.write("cluster_queue=short6\n")
+        meconfig.write("cluster_status_update=60 15\n")
         meconfig.close()
 
 
@@ -94,15 +81,18 @@ class mg5proc:
         print "starting event generation for %s." % self.name
         stdout.flush()
 
-        opts.append("-f")
+        cmd = " ".join(["./%s/bin/generate_events" % self.name] + opts + ["-f"])
+        print cmd; print; stdout.flush()
 
-        exe = ["./%s/bin/generate_events" % self.name] + opts
-        print " ".join(exe); print; stdout.flush()
+        p = pbssubmit("madgraph.%s" % self.name, cmd,
+                outfile="%s/generate_events.log")
 
-        outf = open("%s/generate_events.log" % self.name, 'w')
-        evgenproc = Popen(exe, stdin=PIPE, stdout=outf, stderr=outf)
+        p.wait()
+        print p.stdout.read()
+        print p.stderr.read()
+        stdout.flush()
 
-        return evgenproc
+        return
 
 
 def mg5split(proc, minvar, maxvar, vals):

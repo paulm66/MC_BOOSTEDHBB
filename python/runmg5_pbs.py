@@ -17,24 +17,12 @@ if __name__ == "__main__":
         procs = map(procdict.get, argv[1:])
 
     for p in procs:
-        p.nevents(defnevents)
         p.initialize()
 
     # remove spurious leftover files
     Popen(["rm", "py.py"]).wait()
 
-    running = []
-    for p in procs:
-        opts = ["--nb-cores=1"]
-        # run on PBS cluster.
-        opts = ["--cluster"]
-        running.append(p.generate_events(opts))
+    map(mg5proc.generate_events, procs)
 
-    nprocs = len(running)
-    while nprocs > 0:
-        print "%d processes still running." % nprocs
-        stdout.flush()
-        sleep(30)
-        nprocs = sum(map(lambda p: bool(p.poll()), running))
 
-    print "all event generation complete."
+    print "all event generation jobs submitted."

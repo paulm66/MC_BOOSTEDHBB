@@ -26,10 +26,11 @@ namespace Rivet {
 
         private:
 
-            vector<string> jetColls;
-            map<string, double> minJetPtCut;
-            map<string, map<string, Histo1DPtr> > histos1D;
-            map<string, map<string, Histo2DPtr> > histos2D;
+            vector<string> channels;
+            map<string, map<string, map<string, Histo1DPtr> > > histos1D;
+            map<string, map<string, map<string, Histo2DPtr> > > histos2D;
+
+            void bookChannel(const string& channel);
 
             Histo1DPtr bookHisto(const string& name, const string& title,
                     const string& xlabel, int nxbins, double xmin, double xmax);
@@ -38,30 +39,36 @@ namespace Rivet {
                     const string& xlabel, int nxbins, double xmin, double xmax,
                     const string& ylabel, int nybins, double ymin, double ymax);
 
-            void bookFourMom(const string &name);
-            void bookFourMomPair(const string &name);
-            void bookFourMomComp(const string &name);
-            void bookFourMomColl(const string &name);
+            void bookFourMom(const string& name);
+            void bookFourMomPair(const string& name);
+            void bookFourMomComp(const string& name);
+            void bookFourMomColl(const string& name);
 
-            void fillFourMom(const string &name,
-                    const FourMomentum &part,
+            void fillFourMom(const string& channel,
+                    const string& name,
+                    const FourMomentum& p,
                     double weight);
 
-            void fillFourMomPair(const string &name,
-                    const FourMomentum &p1,
-                    const FourMomentum &p2,
+            void fillFourMomPair(const string& channel,
+                    const string& name,
+                    const FourMomentum& p1,
+                    const FourMomentum& p2,
                     double weight);
 
-            void fillFourMomComp(const string &name,
-                    const FourMomentum &p1,
-                    const FourMomentum &p2,
+            void fillFourMomComp(const string& channel,
+                    const string& name,
+                    const FourMomentum& p1,
+                    const FourMomentum& p2,
                     double weight);
 
             template <class T>
-            void fillFourMomColl(const string &name,
-                    const vector<T> &parts,
+            void fillFourMomColl(const string& channel,
+                    const string& name,
+                    const vector<T>& ps,
                     double weight);
 
+
+            Jets bTagged(const Jets& js);
     };
 
 
