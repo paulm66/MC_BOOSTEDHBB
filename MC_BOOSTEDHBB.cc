@@ -185,6 +185,41 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
         channel += "2b";
 
 
+
+    // very simple boosted higgs tagging
+    // search for higgs:
+    // highest-pt akt10 jet
+    // two dR-matched track jets
+    // all b-tags must be within dR < 1.0 of the fat jet
+    Jet higgs;
+    Jets matchedTrackJets;
+    foreach (const Jet& cj, akt10cjs) {
+        matchedTrackJets.clear();
+
+        foreach (const Jet& tj, akt03tbjs) {
+            // is it near the calojet?
+            if (Rivet::deltaR(cj, tj) < 1.0)
+                matchedTrackJets.push_back(tj);
+        }
+
+        if (matchedTrackJets.size() >= 2) {
+            higgs = cj;
+            break;
+        }
+    }
+
+    if (!higgs.pT()) {
+        MSG_DEBUG("No Higgs candidate found");
+        vetoEvent;
+    }
+
+
+    MSG_DEBUG("Higgs candidate found");
+    // fillFourMomPair(channel, "higgs_tjs", matchedTrackJets[0].mom(), matchedTrackJets[1].mom(), weight);
+    fillFourMom(channel, "higgs", higgs.mom(), weight);
+    fillFourMomPair(channel, "vboson_higgs", vboson.mom(), higgs.mom(), weight);
+
+
     fillFourMomColl(channel, "akt03t_j", akt03tjs, weight);
     fillFourMomColl(channel, "akt03t_b", akt03tbjs, weight);
 
@@ -226,35 +261,6 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
     // fillFourMomColl(channel, "leptons", leptons, weight);
     // fillFourMom(channel, "met", mm.mom(), weight);
 
-
-    // very simple boosted higgs tagging
-    // search for higgs:
-    // highest-pt akt10 jet
-    // matched to two b-tagged track jets
-    Jet higgs;
-    Jets matchedTrackJets;
-    foreach (const Jet& cj, akt10cjs) {
-        matchedTrackJets.clear();
-
-        foreach (const Jet& tj, akt03tbjs) {
-            // is it near the calojet?
-            if (Rivet::deltaR(cj, tj) < 1.0)
-                matchedTrackJets.push_back(tj);
-        }
-
-        if (matchedTrackJets.size() >= 2) {
-            higgs = cj;
-            break;
-        }
-    }
-
-    if (higgs.pT()) {
-        MSG_DEBUG("Higgs candidate found");
-        // fillFourMomPair(channel, "higgs_tjs", matchedTrackJets[0].mom(), matchedTrackJets[1].mom(), weight);
-        fillFourMom(channel, "higgs", higgs.mom(), weight);
-        fillFourMomPair(channel, "vboson_higgs", vboson.mom(), higgs.mom(), weight);
-    } else
-        MSG_DEBUG("No Higgs candidate found");
 
 
     /*
