@@ -236,13 +236,16 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
     foreach (const Jet& cj, akt10cjs) {
         matchedTrackJets.clear();
 
-        foreach (const Jet& tj, akt03tbjs) {
+        int btags = 0;
+        foreach (const Jet& tj, akt03tjs) {
             // is it near the calojet?
             if (Rivet::deltaR(cj, tj) < 1.0)
                 matchedTrackJets.push_back(tj);
         }
 
-        if (matchedTrackJets.size() >= 2) {
+        // require at least two jets and all b-tagged track jets to be
+        // associated with the fat jet
+        if (matchedTrackJets.size() >= 2 && btags == akt03tbjs.size()) {
             higgs = cj;
             break;
         }
