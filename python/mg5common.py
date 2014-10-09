@@ -1,6 +1,7 @@
 # mg5common.py
 
 from subprocess import Popen, PIPE
+from pbssubmit import pbssubmit
 from sys import stdout
 import re
 
@@ -80,15 +81,18 @@ class mg5proc:
         print "starting event generation for %s." % self.name
         stdout.flush()
 
-        opts.append("-f")
+        cmd = " ".join(["./%s/bin/generate_events" % self.name] + opts + ["-f"])
+        print cmd; print; stdout.flush()
 
-        exe = ["./%s/bin/generate_events" % self.name] + opts
-        print " ".join(exe); print; stdout.flush()
+        p = pbssubmit("madgraph.%s" % self.name, cmd,
+                outfile="%s/generate_events.log")
 
-        outf = open("%s/generate_events.log" % self.name, 'w')
-        evgenproc = Popen(exe, stdin=PIPE, stdout=outf, stderr=outf)
+        p.wait()
+        print p.stdout.read()
+        print p.stderr.read()
+        stdout.flush()
 
-        return evgenproc
+        return
 
 
 def mg5split(proc, minvar, maxvar, vals):

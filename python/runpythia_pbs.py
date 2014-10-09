@@ -2,12 +2,9 @@
 
 from subprocess import Popen
 from sys import argv, stdout
-import splitLHE
-from glob import glob
 from pbssubmit import pbssubmit
-from time import sleep
 
-def runpythia_pbs(folder, nevt=25000):
+def runpythia_pbs(folder):
     flhegz = "%s/Events/run_01/events.lhe.gz" % folder
 
     fnamebase = folder.split('/')[-1]

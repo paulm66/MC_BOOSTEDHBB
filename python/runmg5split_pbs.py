@@ -34,16 +34,6 @@ if __name__ == "__main__":
     # remove spurious leftover files
     Popen(["rm", "py.py"]).wait()
 
-    running = []
-    for p in procs:
-        # run on PBS cluster.
-        running.append(p.generate_events(["--cluster"]))
+    map(mg5proc.generate_events, procs)
 
-    nprocs = len(running)
-    while nprocs > 0:
-        nprocs = sum(map(lambda p: bool(p.poll()), running))
-        print "%d processes still running." % nprocs
-        stdout.flush()
-        sleep(30)
-
-    print "all event generation complete."
+    print "all event generation jobs submitted."
