@@ -28,6 +28,7 @@ namespace Rivet {
 
             map<string, Histo1DPtr> cutflows;
             enum cuts {
+                NONE,
                 VBOSON,
                 TWOTRACKJETS,
                 ONEBTAG,

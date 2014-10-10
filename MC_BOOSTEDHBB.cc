@@ -42,7 +42,6 @@ namespace Rivet {
 void MC_BOOSTEDHBB::init() {
     // getLog().setLevel(Log::DEBUG);
 
-
     bookChannel("0l1b");
     bookChannel("0l2b");
     bookChannel("1l1b");
@@ -101,7 +100,7 @@ void MC_BOOSTEDHBB::init() {
     bookFourMomPair("vboson_higgs");
 
     foreach (const string& chan, channels)
-        cutflows[chan] = bookHisto1D(chan + "_cutflow", 5, 0, 5, chan + "_cutflow", "cut", "entries");
+        cutflows[chan] = bookHisto1D(chan + "_cutflow", 6, 0, 6, chan + "_cutflow", "cut", "entries");
 
     return;
 }
@@ -110,6 +109,9 @@ void MC_BOOSTEDHBB::init() {
 /// Perform the per-event analysis
 void MC_BOOSTEDHBB::analyze(const Event& event) {
     const double weight = event.weight();
+
+    foreach (const string& chan, channels)
+        cutflows[chan]->fill(NONE, weight);
 
     // find a boson...
     const Particles& zeebosons =
@@ -185,7 +187,7 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
 
 
     const Jets& akt10cjs =
-        applyProjection<FastJets>(event, "AntiKt10CaloJets").jetsByPt(150*GeV);
+        applyProjection<FastJets>(event, "AntiKt10CaloJets").jetsByPt(250*GeV);
 
     if (akt10cjs.size() != 1) {
         MSG_DEBUG("EventVeto: " << akt10cjs.size() << " akt10 jets found in the event");
