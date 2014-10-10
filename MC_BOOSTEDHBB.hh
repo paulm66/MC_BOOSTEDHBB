@@ -26,6 +26,16 @@ namespace Rivet {
 
         private:
 
+            map<string, Histo1DPtr> cutflows;
+            enum cuts {
+                VBOSON,
+                TWOTRACKJETS,
+                ONEBTAG,
+                ONECALOJET,
+                CALOTRACKMATCH
+            };
+
+
             vector<string> channels;
             map<string, map<string, map<string, Histo1DPtr> > > histos1D;
             map<string, map<string, map<string, Histo2DPtr> > > histos2D;

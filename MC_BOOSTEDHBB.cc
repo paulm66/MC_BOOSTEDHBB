@@ -84,41 +84,24 @@ void MC_BOOSTEDHBB::init() {
     VetoedFinalState trackParts(ChargedFinalState(-2.5, 2.5, 0.5*GeV));
     trackParts.addVetoOnThisFinalState(leptonsAndNeutrinos);
 
-
-    /*
-    // register 0.4 calo jets
-    bookFourMomColl("akt04c_j");
-    bookFourMomColl("akt04c_b");
-    bookFourMomPair("akt04c_jj");
-    addProjection(FastJets(caloParts, FastJets::ANTIKT, 0.4), "AntiKt04CaloJets");
-    */
-
     // register 1.0 calo jets
-    // bookFourMomColl("akt10c_j");
-    // bookFourMomColl("akt10c_b");
     addProjection(FastJets(caloParts, FastJets::ANTIKT, 1.0), "AntiKt10CaloJets");
 
     // register 0.3 track jets
     bookFourMomColl("akt03t_j");
     bookFourMomColl("akt03t_b");
-    bookFourMomPair("akt03t_jj");
     addProjection(FastJets(trackParts, FastJets::ANTIKT, 0.3), "AntiKt03TrackJets");
 
     // register Z and W bosons
     bookFourMom("vboson");
 
-    // register leptons and met
-    // bookFourMomColl("leptons");
-    // bookFourMom("met");
-
-
     // register special collections
-    // bookFourMomPair("higgs_tjs");
     bookFourMom("higgs");
+    bookFourMom("higgstjs");
     bookFourMomPair("vboson_higgs");
 
-    // bookFourMomComp("bhad_akt03t");
-    // bookFourMomComp("bhad_akt04c");
+    foreach (const string& chan, channels)
+        cutflows[chan] = bookHisto1D(chan + "_cutflow", 5, 0, 5, chan + "_cutflow", "cut", "entries");
 
     return;
 }
@@ -148,7 +131,6 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
     const Particle& mm =
         Particle(0, -applyProjection<MissingMomentum>(event, "MissingMomentum").visibleMomentum());
 
-
     // which lepton channel?
     string channel;
     Particle vboson;
@@ -167,144 +149,81 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
     } else if (leptons.size() == 0 && mm.pT() > 30*GeV) {
         vboson = Particle(23, mm);
         channel = "0l";
-    } else
+    } else {
+        MSG_DEBUG("EventVeto: no viable vboson found");
         vetoEvent;
+    }
+
+    cutflows[channel + "1b"]->fill(VBOSON, weight);
+    cutflows[channel + "2b"]->fill(VBOSON, weight);
 
 
-    // which nbtags channel?
     const Jets& akt03tjs =
         applyProjection<FastJets>(event, "AntiKt03TrackJets").jetsByPt(20*GeV);
 
+    if (akt03tjs.size() < 2) {
+        MSG_DEBUG("EventVeto: only " << akt03tjs.size() << " track jets found");
+        vetoEvent;
+    }
+
+    cutflows[channel + "1b"]->fill(TWOTRACKJETS, weight);
+    cutflows[channel + "2b"]->fill(TWOTRACKJETS, weight);
+
+
+    // which nbtags channel?
     const Jets& akt03tbjs = bTagged(akt03tjs);
 
-    if (akt03tbjs.size() == 0)
+    if (akt03tbjs.size() == 0) {
+        MSG_DEBUG("EventVeto: no b-tagged track jets found");
         vetoEvent;
-    else if (akt03tbjs.size() == 1)
+    } else if (akt03tbjs.size() == 1)
         channel += "1b";
     else if (akt03tbjs.size() >= 2)
         channel += "2b";
 
+    cutflows[channel]->fill(ONEBTAG, weight);
+
+
+    const Jets& akt10cjs =
+        applyProjection<FastJets>(event, "AntiKt10CaloJets").jetsByPt(150*GeV);
+
+    if (akt10cjs.size() != 1) {
+        MSG_DEBUG("EventVeto: " << akt10cjs.size() << " akt10 jets found in the event");
+        vetoEvent;
+    }
+
+    cutflows[channel]->fill(ONECALOJET, weight);
 
 
     // very simple boosted higgs tagging
     // search for higgs:
     // highest-pt akt10 jet
     // two dR-matched track jets
-    // all b-tags must be within dR < 1.0 of the fat jet
-    Jet higgs;
-    Jets matchedTrackJets;
-    foreach (const Jet& cj, akt10cjs) {
-        matchedTrackJets.clear();
-
-        int btags = 0;
-        foreach (const Jet& tj, akt03tjs) {
-            // is it near the calojet?
-            if (Rivet::deltaR(cj, tj) < 1.0)
-                matchedTrackJets.push_back(tj);
+    // all track jets must be within dR < 1.0 of the fat jet
+    const Jet& higgs = akt10cjs[0];
+    FourMomentum higgstjs;
+    foreach (const Jet& tj, akt03tjs) {
+        // is the tj near the calojet?
+        if (Rivet::deltaR(higgs, tj) > 1.0) {
+            MSG_DEBUG("EventVeto: track jet far from higgs candidate");
+            vetoEvent;
         }
 
-        // require at least two jets and all b-tagged track jets to be
-        // associated with the fat jet
-        if (matchedTrackJets.size() >= 2 && btags == akt03tbjs.size()) {
-            higgs = cj;
-            break;
-        }
+        higgstjs += tj;
     }
 
 
-    if (!higgs.pT()) {
-        MSG_DEBUG("No Higgs candidate found");
-        vetoEvent;
-    }
+    cutflows[channel]->fill(CALOTRACKMATCH, weight);
 
-    MSG_DEBUG("Higgs candidate found");
 
-    // fillFourMomPair(channel, "higgs_tjs", matchedTrackJets[0].mom(), matchedTrackJets[1].mom(), weight);
     fillFourMom(channel, "higgs", higgs.mom(), weight);
+    fillFourMom(channel, "higgstjs", higgstjs, weight);
+    fillFourMom(channel, "vboson", vboson, weight);
     fillFourMomPair(channel, "vboson_higgs", vboson.mom(), higgs.mom(), weight);
-
 
     fillFourMomColl(channel, "akt03t_j", akt03tjs, weight);
     fillFourMomColl(channel, "akt03t_b", akt03tbjs, weight);
 
-    if (akt03tbjs.size() >= 2)
-        fillFourMomPair(channel, "akt03t_jj", akt03tbjs[0].mom(), akt03tbjs[1].mom(), weight);
-    else if (akt03tbjs.size() && akt03tjs.size())
-        fillFourMomPair(channel, "akt03t_jj", akt03tbjs[0].mom(), akt03tjs[0].mom(), weight);
-    else if (akt03tjs.size() >= 2)
-        fillFourMomPair(channel, "akt03t_jj", akt03tjs[0].mom(), akt03tjs[1].mom(), weight);
-
-
-    /*
-    const Jets& akt04cjs =
-        applyProjection<FastJets>(event, "AntiKt04CaloJets").jetsByPt(25*GeV);
-
-    const Jets& akt04cbjs = bTagged(akt04cjs);
-
-    fillFourMomColl(channel, "akt04c_j", akt04cjs, weight);
-    fillFourMomColl(channel, "akt04c_b", akt04cbjs, weight);
-
-    if (akt04cbjs.size() >= 2)
-        fillFourMomPair(channel, "akt04c_jj", akt04cbjs[0].mom(), akt04cbjs[1].mom(), weight);
-    else if (akt04cbjs.size() && akt04cjs.size())
-        fillFourMomPair(channel, "akt04c_jj", akt04cbjs[0].mom(), akt04cjs[0].mom(), weight);
-    else if (akt04cjs.size() >= 2)
-        fillFourMomPair(channel, "akt04c_jj", akt04cjs[0].mom(), akt04cjs[1].mom(), weight);
-    */
-
-    const Jets& akt10cjs =
-        applyProjection<FastJets>(event, "AntiKt10CaloJets").jetsByPt(250*GeV);
-
-    // const Jets& akt10cbjs = bTagged(akt10cjs);
-
-    // fillFourMomColl(channel, "akt10c_j", akt10cjs, weight);
-    // fillFourMomColl(channel, "akt10c_b", akt10cbjs, weight);
-
-
-    fillFourMom(channel, "vboson", vboson, weight);
-    // fillFourMomColl(channel, "leptons", leptons, weight);
-    // fillFourMom(channel, "met", mm.mom(), weight);
-
-
-    /*
-    // look at deltaR(b-hadron, jet)
-    const Particles& bhads =
-        applyProjection<HeavyHadrons>(event, "HeavyHadrons").bHadrons();
-
-    Jet bestjet;
-    double drMin = -1;
-    foreach (const Particle& bhad, bhads) {
-
-        foreach(const Jet& tj, akt03tjs) {
-            if (drMin < 0) {
-                drMin = Rivet::deltaR(tj, bhad);
-                bestjet = tj;
-                continue;
-            }
-
-            bestjet = Rivet::deltaR(bhad, tj) < drMin ? tj : bestjet;
-        }
-
-        if (drMin > 0)
-            fillFourMomComp(channel, "bhad_akt03t", bhad.mom(), bestjet.mom(), weight);
-
-        // reset
-        drMin = -1;
-
-        foreach(const Jet& cj, akt04cjs) {
-            if (drMin < 0) {
-                drMin = Rivet::deltaR(cj, bhad);
-                bestjet = cj;
-                continue;
-            }
-
-            bestjet = Rivet::deltaR(bhad, cj) < drMin ? cj : bestjet;
-        }
-
-        if (drMin > 0)
-            fillFourMomComp(channel, "bhad_akt04c", bhad.mom(), bestjet.mom(), weight);
-    }
-    */
 
     return;
 }
@@ -322,6 +241,7 @@ void MC_BOOSTEDHBB::finalize() {
         }
     }
 
+
     for (map< string, map<string, map<string, Histo2DPtr> > >::iterator p = histos2D.begin(); p != histos2D.end(); ++p) {
         for (map<string, map<string, Histo2DPtr> >::iterator q = p->second.begin(); q != p->second.end(); ++q) {
             for (map<string, Histo2DPtr>::iterator r = q->second.begin(); r != q->second.end(); ++r) {
@@ -329,6 +249,12 @@ void MC_BOOSTEDHBB::finalize() {
             }
         }
     }
+
+
+    for (map<string, Histo1DPtr>::iterator p = cutflows.begin(); p != cutflows.end(); ++p) {
+        p->second->scaleW(norm); // norm to cross section
+    }
+
 
     return;
 }
@@ -376,13 +302,13 @@ void MC_BOOSTEDHBB::bookFourMom(const string& name) {
     MSG_DEBUG("Booking " << name << " histograms.");
 
     foreach (const string& chan, channels) {
-        histos1D[chan][name]["pt"] = bookHisto(chan + "_" + name + "_pt", name, ptlab, 50, 0, 2000*GeV);
-        histos1D[chan][name]["eta"] = bookHisto(chan + "_" + name + "_eta", name, "$\\eta$", 50, -5, 5);
-        histos1D[chan][name]["m"] = bookHisto(chan + "_" + name + "_m", name, mlab, 200, 0, 2000*GeV);
+        histos1D[chan][name]["pt"] = bookHisto(chan + "_" + name + "_pt", name, ptlab, 25, 0, 2000*GeV);
+        histos1D[chan][name]["eta"] = bookHisto(chan + "_" + name + "_eta", name, "$\\eta$", 25, -5, 5);
+        histos1D[chan][name]["m"] = bookHisto(chan + "_" + name + "_m", name, mlab, 25, 0, 1000*GeV);
 
         histos2D[chan][name]["m_vs_pt"] = bookHisto(chan + "_" + name + "_m_vs_pt", name,
-                ptlab, 50, 0, 2000*GeV,
-                mlab, 200, 0, 2000*GeV);
+                ptlab, 25, 0, 2000*GeV,
+                mlab, 25, 0, 1000*GeV);
     }
 
     return;
@@ -395,19 +321,19 @@ void MC_BOOSTEDHBB::bookFourMomPair(const string& name) {
 
     foreach (const string& chan, channels) {
         // extra histograms for pairs of particles
-        histos1D[chan][name]["dr"] = bookHisto(chan + "_" + name + "_dr", drlab, "", 50, 0, 5);
+        histos1D[chan][name]["dr"] = bookHisto(chan + "_" + name + "_dr", drlab, "", 25, 0, 5);
 
         histos2D[chan][name]["dr_vs_pt"] = bookHisto(chan + "_" + name + "_dr_vs_pt", name,
-                ptlab, 50, 0, 2000*GeV,
-                drlab, 50, 0, 5);
+                ptlab, 25, 0, 2000*GeV,
+                drlab, 25, 0, 5);
 
         histos2D[chan][name]["pt1_vs_pt2"] = bookHisto(chan + "_" + name + "_pt1_vs_pt2", name,
-                ptlab, 50, 0, 2000*GeV,
-                ptlab, 50, 0, 2000*GeV);
+                ptlab, 25, 0, 2000*GeV,
+                ptlab, 25, 0, 2000*GeV);
 
         // pt balance
         histos1D[chan][name]["pt1_minus_pt2"] = bookHisto(chan + "_" + name + "_pt1_minus_pt2", name,
-                ptlab, 50, -1000*GeV, 1000*GeV);
+                ptlab, 25, -1000*GeV, 1000*GeV);
     }
 
     return;
@@ -417,21 +343,21 @@ void MC_BOOSTEDHBB::bookFourMomPair(const string& name) {
 void MC_BOOSTEDHBB::bookFourMomComp(const string& name) {
 
     foreach (const string& chan, channels) {
-        histos1D[chan][name]["dr"] = bookHisto(chan + "_" + name + "_dr", drlab, name, 50, 0, 0.5);
+        histos1D[chan][name]["dr"] = bookHisto(chan + "_" + name + "_dr", drlab, name, 25, 0, 0.5);
 
         histos1D[chan][name]["pt1_minus_pt2"] = bookHisto(chan + "_" + name + "_pt1_minus_pt2", name,
-                ptlab, 50, -100*GeV, 100*GeV);
+                ptlab, 25, -100*GeV, 100*GeV);
 
         histos1D[chan][name]["pt1_by_pt2"] = bookHisto(chan + "_" + name + "_pt1_by_pt2", name,
-                "$p_{T,1}/p_{T,2}$" , 50, 0, 3);
+                "$p_{T,1}/p_{T,2}$" , 25, 0, 3);
 
         histos2D[chan][name]["dr_vs_dpt"] = bookHisto(chan + "_" + name + "_dr_vs_dpt", name,
-                ptlab, 50, -100*GeV, 100*GeV,
-                drlab, 50, 0, 0.5);
+                ptlab, 25, -100*GeV, 100*GeV,
+                drlab, 25, 0, 0.5);
 
         histos2D[chan][name]["pt1_vs_pt2"] = bookHisto(chan + "_" + name + "_pt1_vs_pt2", name,
-                ptlab, 50, 0, 2000*GeV,
-                ptlab, 50, 0, 2000*GeV);
+                ptlab, 25, 0, 2000*GeV,
+                ptlab, 25, 0, 2000*GeV);
     }
 
     return;
@@ -502,14 +428,6 @@ void MC_BOOSTEDHBB::fillFourMomColl(const string& channel, const string& name, c
     foreach (const T& p, ps)
         fillFourMom(channel, name, p.mom(), weight);
 
-    /*
-    if (ps.size())
-        fillFourMom(channel, name + "0", ps[0].mom(), weight);
-
-    if (ps.size() >= 2)
-        fillFourMom(channel, name + "1", ps[1].mom(), weight);
-    */
-
     return;
 }
 
@@ -518,7 +436,7 @@ Jets MC_BOOSTEDHBB::bTagged(const Jets& js) {
     Jets bjs;
     foreach(const Jet& j, js)
         // TODO
-        // update
+        // update for new rivet version
         if (j.bTags().size()) bjs.push_back(j);
 
     return bjs;
