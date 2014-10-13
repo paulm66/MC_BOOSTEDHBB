@@ -10,7 +10,8 @@ namespace Rivet {
         public:
             /// Constructor
             MC_BOOSTEDHBB()
-                : Analysis("MC_BOOSTEDHBB") {
+                : Analysis("MC_BOOSTEDHBB"),
+                    cutBits(CUTSLEN, false) {
 
                     return;
                 }
@@ -26,15 +27,35 @@ namespace Rivet {
 
         private:
 
-            map<string, Histo1DPtr> cutflows;
+
+            Histo1DPtr cutflow;
             enum cuts {
-                NONE,
-                VBOSON,
-                TWOTRACKJETS,
-                ONEBTAG,
-                ONECALOJET,
-                CALOTRACKMATCH
+                NONE,               // 0
+                ZLL,                // 1
+                WLNU,               // 2
+                ZNUNU,              // 3
+                ONEAKT10JET,        // 4
+                BOOSTEDHB,          // 5
+                BOOSTEDHBB,         // 6
+                TWOAKT04JETS,       // 7
+                RESOLVEDHB,         // 8
+                RESOLVEDHBB,        // 9
+                ZLLBOOSTEDHB,       // 10
+                ZLLBOOSTEDHBB,      // 11
+                ZLLRESOLVEDHB,      // 12
+                ZLLRESOLVEDHBB,     // 13
+                WLNUBOOSTEDHB,      // 14
+                WLNUBOOSTEDHBB,     // 15
+                WLNURESOLVEDHB,     // 16
+                WLNURESOLVEDHBB,    // 17
+                ZNUNUBOOSTEDHB,     // 18
+                ZNUNUBOOSTEDHBB,    // 19
+                ZNUNURESOLVEDHB,    // 20
+                ZNUNURESOLVEDHBB,   // 21
+                CUTSLEN
             };
+
+            vector<bool> cutBits;
 
 
             vector<string> channels;

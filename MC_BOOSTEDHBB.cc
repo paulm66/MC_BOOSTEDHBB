@@ -42,12 +42,20 @@ namespace Rivet {
 void MC_BOOSTEDHBB::init() {
     // getLog().setLevel(Log::DEBUG);
 
-    bookChannel("0l1b");
-    bookChannel("0l2b");
-    bookChannel("1l1b");
-    bookChannel("1l2b");
-    bookChannel("2l1b");
-    bookChannel("2l2b");
+    bookChannel("ZllBoostedHbb");
+    bookChannel("ZllBoostedHb");
+    bookChannel("ZllResolvedHbb");
+    bookChannel("ZllResolvedHb");
+
+    bookChannel("WlnuBoostedHbb");
+    bookChannel("WlnuBoostedHb");
+    bookChannel("WlnuResolvedHbb");
+    bookChannel("WlnuResolvedHb");
+
+    bookChannel("ZnunuBoostedHbb");
+    bookChannel("ZnunuBoostedHb");
+    bookChannel("ZnunuResolvedHbb");
+    bookChannel("ZnunuResolvedHb");
 
 
     ChargedLeptons clfs(FinalState(-2.5, 2.5, 25*GeV));
@@ -79,28 +87,24 @@ void MC_BOOSTEDHBB::init() {
     VetoedFinalState caloParts(FinalState(-4.2, 4.2));
     caloParts.addVetoOnThisFinalState(leptonsAndNeutrinos);
 
-    // "track" jets constituents
+    // track jets constituents
     VetoedFinalState trackParts(ChargedFinalState(-2.5, 2.5, 0.5*GeV));
     trackParts.addVetoOnThisFinalState(leptonsAndNeutrinos);
 
-    // register 1.0 calo jets
+    // register jet collections
+    addProjection(FastJets(trackParts, FastJets::ANTIKT, 0.3), "AntiKt03TrackJets");
+    addProjection(FastJets(caloParts, FastJets::ANTIKT, 0.4), "AntiKt04CaloJets");
     addProjection(FastJets(caloParts, FastJets::ANTIKT, 1.0), "AntiKt10CaloJets");
 
-    // register 0.3 track jets
-    bookFourMomColl("akt03t_j");
-    bookFourMomColl("akt03t_b");
-    addProjection(FastJets(trackParts, FastJets::ANTIKT, 0.3), "AntiKt03TrackJets");
 
     // register Z and W bosons
     bookFourMom("vboson");
 
     // register special collections
     bookFourMom("higgs");
-    bookFourMom("higgstjs");
     bookFourMomPair("vboson_higgs");
 
-    foreach (const string& chan, channels)
-        cutflows[chan] = bookHisto1D(chan + "_cutflow", 6, 0, 6, chan + "_cutflow", "cut", "entries");
+    cutflow = bookHisto1D("cutflow", CUTSLEN, 0, CUTSLEN, "cutflow", "cut", "entries");
 
     return;
 }
@@ -110,8 +114,10 @@ void MC_BOOSTEDHBB::init() {
 void MC_BOOSTEDHBB::analyze(const Event& event) {
     const double weight = event.weight();
 
-    foreach (const string& chan, channels)
-        cutflows[chan]->fill(NONE, weight);
+    // reset cut bits.
+    for (unsigned int iCut = 0; iCut < CUTSLEN; ++iCut)
+        cutBits[iCut] = false;
+    cutBits[NONE] = true;
 
     // find a boson...
     const Particles& zeebosons =
@@ -133,99 +139,132 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
     const Particle& mm =
         Particle(0, -applyProjection<MissingMomentum>(event, "MissingMomentum").visibleMomentum());
 
-    // which lepton channel?
-    string channel;
-    Particle vboson;
-    if (zeebosons.size() && leptons.size() == 2) {
-        vboson = zeebosons[0];
-        channel = "2l";
-    } else if (zmumubosons.size() && leptons.size() == 2) {
-        vboson = zmumubosons[0];
-        channel = "2l";
-    } else if (wenubosons.size() && leptons.size() == 1) {
-        vboson = wenubosons[0];
-        channel = "1l";
-    } else if (wmunubosons.size() && leptons.size() == 1) {
-        vboson = wmunubosons[0];
-        channel = "1l";
-    } else if (leptons.size() == 0 && mm.pT() > 30*GeV) {
-        vboson = Particle(23, mm);
-        channel = "0l";
-    } else {
-        MSG_DEBUG("EventVeto: no viable vboson found");
-        vetoEvent;
-    }
-
-    cutflows[channel + "1b"]->fill(VBOSON, weight);
-    cutflows[channel + "2b"]->fill(VBOSON, weight);
-
 
     const Jets& akt03tjs =
-        applyProjection<FastJets>(event, "AntiKt03TrackJets").jetsByPt(20*GeV);
-
-    if (akt03tjs.size() < 2) {
-        MSG_DEBUG("EventVeto: only " << akt03tjs.size() << " track jets found");
-        vetoEvent;
-    }
-
-    cutflows[channel + "1b"]->fill(TWOTRACKJETS, weight);
-    cutflows[channel + "2b"]->fill(TWOTRACKJETS, weight);
-
-
-    // which nbtags channel?
+        applyProjection<FastJets>(event, "AntiKt03TrackJets").jetsByPt(25*GeV);
     const Jets& akt03tbjs = bTagged(akt03tjs);
 
-    if (akt03tbjs.size() == 0) {
-        MSG_DEBUG("EventVeto: no b-tagged track jets found");
-        vetoEvent;
-    } else if (akt03tbjs.size() == 1)
-        channel += "1b";
-    else if (akt03tbjs.size() >= 2)
-        channel += "2b";
-
-    cutflows[channel]->fill(ONEBTAG, weight);
-
+    const Jets& akt04cjs =
+        applyProjection<FastJets>(event, "AntiKt04CaloJets").jetsByPt(25*GeV);
+    const Jets& akt04cbjs = bTagged(akt04cjs);
 
     const Jets& akt10cjs =
         applyProjection<FastJets>(event, "AntiKt10CaloJets").jetsByPt(250*GeV);
 
-    if (akt10cjs.size() != 1) {
-        MSG_DEBUG("EventVeto: " << akt10cjs.size() << " akt10 jets found in the event");
-        vetoEvent;
+
+    // find vboson
+    Particle vboson;
+    if (zeebosons.size() && leptons.size() == 2) {
+        vboson = zeebosons[0];
+        cutBits[ZLL] = true;
+    } else if (zmumubosons.size() && leptons.size() == 2) {
+        vboson = zmumubosons[0];
+        cutBits[ZLL] = true;
+    } else if (wenubosons.size() && leptons.size() == 1) {
+        vboson = wenubosons[0];
+        cutBits[WLNU] = true;
+    } else if (wmunubosons.size() && leptons.size() == 1) {
+        vboson = wmunubosons[0];
+        cutBits[WLNU] = true;
+    } else if (leptons.size() == 0 && mm.pT() > 30*GeV) {
+        vboson = Particle(23, mm);
+        cutBits[ZNUNU] = true;
     }
 
-    cutflows[channel]->fill(ONECALOJET, weight);
 
+    // find boosted higgs
+    Particle higgsboosted;
 
     // very simple boosted higgs tagging
-    // search for higgs:
-    // highest-pt akt10 jet
-    // two dR-matched track jets
-    // all track jets must be within dR < 1.0 of the fat jet
-    const Jet& higgs = akt10cjs[0];
-    FourMomentum higgstjs;
-    foreach (const Jet& tj, akt03tjs) {
-        // is the tj near the calojet?
-        if (Rivet::deltaR(higgs, tj) > 1.0) {
-            MSG_DEBUG("EventVeto: track jet far from higgs candidate");
-            vetoEvent;
-        }
+    // exactly one akt10 calo jet
+    // all track jets in event must be in the calo jet cone
 
-        higgstjs += tj;
+    // exactly one akt10 calo jet
+    if (akt10cjs.size() == 1) {
+        cutBits[ONEAKT10JET] = true;
+        cutBits[BOOSTEDHB] = akt03tbjs.size() == 1;
+        cutBits[BOOSTEDHBB] = akt03tbjs.size() >= 2;
+
+        higgsboosted = Particle(25, akt10cjs[0].mom());
+
+        // all track jets in event must be in the calo jet cone
+        foreach (const Jet& tj, akt03tjs) {
+            if (Rivet::deltaR(higgsboosted, tj) > 1.0) {
+                cutBits[BOOSTEDHB] = false;
+                cutBits[BOOSTEDHBB] = false;
+                break;
+            }
+        }
     }
 
 
-    cutflows[channel]->fill(CALOTRACKMATCH, weight);
+    // find resolved higgs
+    Particle higgsresolved;
+
+    // very simple resolved higgs tagging
+    // exactly two akt04 calo jets, one of which must be b-tagged
+    if (akt04cjs.size() == 2) {
+        cutBits[TWOAKT04JETS] = true;
+        cutBits[RESOLVEDHB] = akt04cbjs.size() == 1;
+        cutBits[RESOLVEDHBB] = akt04cbjs.size() == 2;
+
+        higgsresolved = Particle(25, akt04cjs[0].mom() + akt04cjs[1].mom());
+    }
+
+
+    Particle higgs = higgsboosted.pT() ? higgsboosted : higgsresolved;
+
+
+    string channel;
+    if (cutBits[ZLL]) {
+        cutBits[ZLLBOOSTEDHB] = cutBits[BOOSTEDHB];
+        cutBits[ZLLBOOSTEDHBB] = cutBits[BOOSTEDHBB];
+        cutBits[ZLLRESOLVEDHB] = cutBits[RESOLVEDHB];
+        cutBits[ZLLRESOLVEDHBB] = cutBits[RESOLVEDHBB];
+    } else if (cutBits[WLNU]) {
+        cutBits[WLNUBOOSTEDHB] = cutBits[BOOSTEDHB];
+        cutBits[WLNUBOOSTEDHBB] = cutBits[BOOSTEDHBB];
+        cutBits[WLNURESOLVEDHB] = cutBits[RESOLVEDHB];
+        cutBits[WLNURESOLVEDHBB] = cutBits[RESOLVEDHBB];
+    } else if (cutBits[ZNUNU]) {
+        cutBits[ZNUNUBOOSTEDHB] = cutBits[BOOSTEDHB];
+        cutBits[ZNUNUBOOSTEDHBB] = cutBits[BOOSTEDHBB];
+        cutBits[ZNUNURESOLVEDHB] = cutBits[RESOLVEDHB];
+        cutBits[ZNUNURESOLVEDHBB] = cutBits[RESOLVEDHBB];
+    }
+
+
+    // fill cuts
+    for (int iCut = 0; iCut < CUTSLEN; ++iCut)
+        if (cutBits[iCut])
+            cutflow->fill(iCut, weight);
+
+
+    // find channel
+    if (cutBits[ZLL])
+        channel = "Zll";
+    else if (cutBits[WLNU])
+        channel = "Wlnu";
+    else if (cutBits[ZNUNU])
+        channel = "Znunu";
+    else
+        vetoEvent;
+
+    if (cutBits[BOOSTEDHBB])
+        channel += "BoostedHbb";
+    else if (cutBits[BOOSTEDHB])
+        channel += "BoostedHb";
+    else if (cutBits[RESOLVEDHBB])
+        channel += "ResolvedHbb";
+    else if (cutBits[RESOLVEDHB])
+        channel += "ResolvedHb";
+    else
+        vetoEvent;
 
 
     fillFourMom(channel, "higgs", higgs.mom(), weight);
-    fillFourMom(channel, "higgstjs", higgstjs, weight);
     fillFourMom(channel, "vboson", vboson, weight);
     fillFourMomPair(channel, "vboson_higgs", vboson.mom(), higgs.mom(), weight);
-
-    fillFourMomColl(channel, "akt03t_j", akt03tjs, weight);
-    fillFourMomColl(channel, "akt03t_b", akt03tbjs, weight);
-
 
     return;
 }
@@ -234,7 +273,8 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
 /// Normalise histograms etc., after the run
 void MC_BOOSTEDHBB::finalize() {
 
-    double norm = crossSection()/sumOfWeights();
+    // normalize to 1/fb
+    double norm = 1000*crossSection()/sumOfWeights();
     for (map< string, map<string, map<string, Histo1DPtr> > >::iterator p = histos1D.begin(); p != histos1D.end(); ++p) {
         for (map<string, map<string, Histo1DPtr> >::iterator q = p->second.begin(); q != p->second.end(); ++q) {
             for (map<string, Histo1DPtr>::iterator r = q->second.begin(); r != q->second.end(); ++r) {
@@ -253,9 +293,7 @@ void MC_BOOSTEDHBB::finalize() {
     }
 
 
-    for (map<string, Histo1DPtr>::iterator p = cutflows.begin(); p != cutflows.end(); ++p) {
-        p->second->scaleW(norm); // norm to cross section
-    }
+    cutflow->scaleW(norm);
 
 
     return;
