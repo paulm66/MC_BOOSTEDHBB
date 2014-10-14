@@ -171,6 +171,8 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
         cutBits[ZNUNU] = true;
     }
 
+    cutBits[VBOSON] = cutBits[ZLL] || cutBits[WLNU] || cutBits[ZNUNU];
+
 
     // find boosted higgs
     Particle higgsboosted;
@@ -179,9 +181,12 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
     // exactly one akt10 calo jet
     // all track jets in event must be in the calo jet cone
 
+    if (akt10cjs.size())
+        cutBits[ONEAKT10JETINC] = true;
+
     // exactly one akt10 calo jet
     if (akt10cjs.size() == 1) {
-        cutBits[ONEAKT10JET] = true;
+        cutBits[ONEAKT10JETEXC] = true;
         cutBits[BOOSTEDHB] = akt03tbjs.size() == 1;
         cutBits[BOOSTEDHBB] = akt03tbjs.size() >= 2;
 
@@ -201,10 +206,13 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
     // find resolved higgs
     Particle higgsresolved;
 
+    if (akt04cjs.size() >= 2)
+        cutBits[TWOAKT04JETSINC] = true;
+
     // very simple resolved higgs tagging
     // exactly two akt04 calo jets, one of which must be b-tagged
     if (akt04cjs.size() == 2) {
-        cutBits[TWOAKT04JETS] = true;
+        cutBits[TWOAKT04JETSEXC] = true;
         cutBits[RESOLVEDHB] = akt04cbjs.size() == 1;
         cutBits[RESOLVEDHBB] = akt04cbjs.size() == 2;
 

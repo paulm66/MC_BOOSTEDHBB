@@ -34,24 +34,27 @@ namespace Rivet {
                 ZLL,                // 1
                 WLNU,               // 2
                 ZNUNU,              // 3
-                ONEAKT10JET,        // 4
-                BOOSTEDHB,          // 5
-                BOOSTEDHBB,         // 6
-                TWOAKT04JETS,       // 7
-                RESOLVEDHB,         // 8
-                RESOLVEDHBB,        // 9
-                ZLLBOOSTEDHB,       // 10
-                ZLLBOOSTEDHBB,      // 11
-                ZLLRESOLVEDHB,      // 12
-                ZLLRESOLVEDHBB,     // 13
-                WLNUBOOSTEDHB,      // 14
-                WLNUBOOSTEDHBB,     // 15
-                WLNURESOLVEDHB,     // 16
-                WLNURESOLVEDHBB,    // 17
-                ZNUNUBOOSTEDHB,     // 18
-                ZNUNUBOOSTEDHBB,    // 19
-                ZNUNURESOLVEDHB,    // 20
-                ZNUNURESOLVEDHBB,   // 21
+                VBOSON,             // 4
+                TWOAKT04JETSINC,    // 5
+                TWOAKT04JETSEXC,    // 6
+                RESOLVEDHB,         // 7
+                RESOLVEDHBB,        // 8
+                WLNURESOLVEDHB,     // 9
+                WLNURESOLVEDHBB,    // 10
+                ZNUNURESOLVEDHB,    // 11
+                ZNUNURESOLVEDHBB,   // 12
+                ZLLRESOLVEDHB,      // 13
+                ZLLRESOLVEDHBB,     // 14
+                ONEAKT10JETINC,     // 15
+                ONEAKT10JETEXC,     // 16
+                BOOSTEDHB,          // 17
+                BOOSTEDHBB,         // 18
+                WLNUBOOSTEDHB,      // 19
+                WLNUBOOSTEDHBB,     // 20
+                ZNUNUBOOSTEDHB,     // 21
+                ZNUNUBOOSTEDHBB,    // 22
+                ZLLBOOSTEDHB,       // 23
+                ZLLBOOSTEDHBB,      // 24
                 CUTSLEN
             };
 
