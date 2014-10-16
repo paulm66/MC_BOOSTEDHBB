@@ -21,6 +21,9 @@
 #include "Rivet/Jet.hh"
 #include "Rivet/Projections/FastJets.hh"
 
+#include "fastjet/JetDefinition.hh"
+#include "fastjet/contrib/VariableR.hh"
+
 using std::map;
 using std::string;
 
@@ -95,6 +98,10 @@ void MC_BOOSTEDHBB::init() {
     addProjection(FastJets(trackParts, FastJets::ANTIKT, 0.3), "AntiKt03TrackJets");
     addProjection(FastJets(caloParts, FastJets::ANTIKT, 0.4), "AntiKt04CaloJets");
     addProjection(FastJets(caloParts, FastJets::ANTIKT, 1.0), "AntiKt10CaloJets");
+
+    // variable-R jets
+    fastjet::JetDefinition::Plugin *vrplug = new fastjet::contrib::VariableRPlugin(50*GeV /* rho < mH */, 0.2, 0.6, fastjet::contrib::VariableRPlugin::AKTLIKE);
+    addProjection(FastJets(caloParts, vrplug), "AntiKtVRCaloJets");
 
 
     // register Z and W bosons
