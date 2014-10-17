@@ -49,16 +49,22 @@ void MC_BOOSTEDHBB::init() {
     bookChannel("ZllBoostedHb");
     bookChannel("ZllResolvedHbb");
     bookChannel("ZllResolvedHb");
+    bookChannel("ZllVRHbb");
+    bookChannel("ZllVRHb");
 
     bookChannel("WlnuBoostedHbb");
     bookChannel("WlnuBoostedHb");
     bookChannel("WlnuResolvedHbb");
     bookChannel("WlnuResolvedHb");
+    bookChannel("WlnuVRHbb");
+    bookChannel("WlnuVRHb");
 
     bookChannel("ZnunuBoostedHbb");
     bookChannel("ZnunuBoostedHb");
     bookChannel("ZnunuResolvedHbb");
     bookChannel("ZnunuResolvedHb");
+    bookChannel("ZnunuVRHbb");
+    bookChannel("ZnunuVRHb");
 
 
     ChargedLeptons clfs(FinalState(-2.5, 2.5, 25*GeV));
@@ -100,7 +106,8 @@ void MC_BOOSTEDHBB::init() {
     addProjection(FastJets(caloParts, FastJets::ANTIKT, 1.0), "AntiKt10CaloJets");
 
     // variable-R jets
-    fastjet::JetDefinition::Plugin *vrplug = new fastjet::contrib::VariableRPlugin(50*GeV /* rho < mH */, 0.2, 0.6, fastjet::contrib::VariableRPlugin::AKTLIKE);
+    fastjet::JetDefinition::Plugin *vrplug =
+        new fastjet::contrib::VariableRPlugin(25*GeV /* rho < mH */, 0.2, 0.6, fastjet::contrib::VariableRPlugin::AKTLIKE);
     addProjection(FastJets(caloParts, vrplug), "AntiKtVRCaloJets");
 
 
@@ -158,6 +165,10 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
     const Jets& akt10cjs =
         applyProjection<FastJets>(event, "AntiKt10CaloJets").jetsByPt(250*GeV);
 
+    const Jets& aktvrcjs =
+        applyProjection<FastJets>(event, "AntiKtVRCaloJets").jetsByPt(25*GeV);
+    const Jets& aktvrcbjs = bTagged(aktvrcjs);
+
 
     // find vboson
     Particle vboson;
@@ -182,7 +193,7 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
 
 
     // find boosted higgs
-    Particle higgsboosted;
+    Particle boostedhiggs;
 
     // very simple boosted higgs tagging
     // exactly one akt10 calo jet
@@ -197,11 +208,11 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
         cutBits[BOOSTEDHB] = akt03tbjs.size() == 1;
         cutBits[BOOSTEDHBB] = akt03tbjs.size() >= 2;
 
-        higgsboosted = Particle(25, akt10cjs[0].mom());
+        boostedhiggs = Particle(25, akt10cjs[0].mom());
 
         // all track jets in event must be in the calo jet cone
         foreach (const Jet& tj, akt03tjs) {
-            if (Rivet::deltaR(higgsboosted, tj) > 1.0) {
+            if (Rivet::deltaR(boostedhiggs, tj) > 1.0) {
                 cutBits[BOOSTEDHB] = false;
                 cutBits[BOOSTEDHBB] = false;
                 break;
@@ -211,7 +222,7 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
 
 
     // find resolved higgs
-    Particle higgsresolved;
+    Particle resolvedhiggs;
 
     if (akt04cjs.size() >= 2)
         cutBits[TWOAKT04JETSINC] = true;
@@ -223,29 +234,44 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
         cutBits[RESOLVEDHB] = akt04cbjs.size() == 1;
         cutBits[RESOLVEDHBB] = akt04cbjs.size() == 2;
 
-        higgsresolved = Particle(25, akt04cjs[0].mom() + akt04cjs[1].mom());
+        resolvedhiggs = Particle(25, akt04cjs[0].mom() + akt04cjs[1].mom());
     }
 
 
-    Particle higgs = higgsboosted.pT() ? higgsboosted : higgsresolved;
+    Particle vrhiggs;
+    if (aktvrcjs.size() >= 2)
+        cutBits[TWOAKTVRJETSINC] = true;
+
+    if (aktvrcjs.size() == 2) {
+        cutBits[TWOAKTVRJETSEXC] = true;
+        cutBits[VRHB] = aktvrcbjs.size() == 1;
+        cutBits[VRHBB] = aktvrcbjs.size() == 2;
+
+        vrhiggs = Particle(25, aktvrcjs[0].mom() + aktvrcjs[1].mom());
+    }
 
 
-    string channel;
     if (cutBits[ZLL]) {
         cutBits[ZLLBOOSTEDHB] = cutBits[BOOSTEDHB];
         cutBits[ZLLBOOSTEDHBB] = cutBits[BOOSTEDHBB];
         cutBits[ZLLRESOLVEDHB] = cutBits[RESOLVEDHB];
         cutBits[ZLLRESOLVEDHBB] = cutBits[RESOLVEDHBB];
+        cutBits[ZLLVRHB] = cutBits[VRHB];
+        cutBits[ZLLVRHBB] = cutBits[VRHBB];
     } else if (cutBits[WLNU]) {
         cutBits[WLNUBOOSTEDHB] = cutBits[BOOSTEDHB];
         cutBits[WLNUBOOSTEDHBB] = cutBits[BOOSTEDHBB];
         cutBits[WLNURESOLVEDHB] = cutBits[RESOLVEDHB];
         cutBits[WLNURESOLVEDHBB] = cutBits[RESOLVEDHBB];
+        cutBits[WLNUVRHB] = cutBits[VRHB];
+        cutBits[WLNUVRHBB] = cutBits[VRHBB];
     } else if (cutBits[ZNUNU]) {
         cutBits[ZNUNUBOOSTEDHB] = cutBits[BOOSTEDHB];
         cutBits[ZNUNUBOOSTEDHBB] = cutBits[BOOSTEDHBB];
         cutBits[ZNUNURESOLVEDHB] = cutBits[RESOLVEDHB];
         cutBits[ZNUNURESOLVEDHBB] = cutBits[RESOLVEDHBB];
+        cutBits[ZNUNUVRHB] = cutBits[VRHB];
+        cutBits[ZNUNUVRHBB] = cutBits[VRHBB];
     }
 
 
@@ -256,30 +282,60 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
 
 
     // find channel
+    string lepchan;
     if (cutBits[ZLL])
-        channel = "Zll";
+        lepchan = "Zll";
     else if (cutBits[WLNU])
-        channel = "Wlnu";
+        lepchan = "Wlnu";
     else if (cutBits[ZNUNU])
-        channel = "Znunu";
-    else
-        vetoEvent;
-
-    if (cutBits[BOOSTEDHBB])
-        channel += "BoostedHbb";
-    else if (cutBits[BOOSTEDHB])
-        channel += "BoostedHb";
-    else if (cutBits[RESOLVEDHBB])
-        channel += "ResolvedHbb";
-    else if (cutBits[RESOLVEDHB])
-        channel += "ResolvedHb";
+        lepchan = "Znunu";
     else
         vetoEvent;
 
 
-    fillFourMom(channel, "higgs", higgs.mom(), weight);
-    fillFourMom(channel, "vboson", vboson, weight);
-    fillFourMomPair(channel, "vboson_higgs", vboson.mom(), higgs.mom(), weight);
+    string channel;
+    Particle higgs;
+    if (cutBits[BOOSTEDHBB]) {
+        channel = lepchan + "BoostedHbb";
+        higgs = boostedhiggs;
+        fillFourMom(channel, "higgs", higgs.mom(), weight);
+        fillFourMom(channel, "vboson", vboson, weight);
+        fillFourMomPair(channel, "vboson_higgs", vboson.mom(), higgs.mom(), weight);
+    } else if (cutBits[BOOSTEDHB]) {
+        channel = lepchan + "BoostedHb";
+        higgs = boostedhiggs;
+        fillFourMom(channel, "higgs", higgs.mom(), weight);
+        fillFourMom(channel, "vboson", vboson, weight);
+        fillFourMomPair(channel, "vboson_higgs", vboson.mom(), higgs.mom(), weight);
+    } 
+
+    if (cutBits[RESOLVEDHBB]) {
+        channel = lepchan + "ResolvedHbb";
+        higgs = resolvedhiggs;
+        fillFourMom(channel, "higgs", higgs.mom(), weight);
+        fillFourMom(channel, "vboson", vboson, weight);
+        fillFourMomPair(channel, "vboson_higgs", vboson.mom(), higgs.mom(), weight);
+    } else if (cutBits[RESOLVEDHB]) {
+        channel = lepchan + "ResolvedHb";
+        higgs = resolvedhiggs;
+        fillFourMom(channel, "higgs", higgs.mom(), weight);
+        fillFourMom(channel, "vboson", vboson, weight);
+        fillFourMomPair(channel, "vboson_higgs", vboson.mom(), higgs.mom(), weight);
+    } 
+
+    if (cutBits[VRHBB]) {
+        channel = lepchan + "VRHbb";
+        higgs = vrhiggs;
+        fillFourMom(channel, "higgs", higgs.mom(), weight);
+        fillFourMom(channel, "vboson", vboson, weight);
+        fillFourMomPair(channel, "vboson_higgs", vboson.mom(), higgs.mom(), weight);
+    } else if (cutBits[VRHB]) {
+        channel = lepchan + "VRHb";
+        higgs = vrhiggs;
+        fillFourMom(channel, "higgs", higgs.mom(), weight);
+        fillFourMom(channel, "vboson", vboson, weight);
+        fillFourMomPair(channel, "vboson_higgs", vboson.mom(), higgs.mom(), weight);
+    } 
 
     return;
 }
@@ -425,9 +481,8 @@ void MC_BOOSTEDHBB::bookFourMomColl(const string& name) {
     // bookFourMom(name + "0");
     // bookFourMom(name + "1");
 
-    foreach (const string& chan, channels) {
+    foreach (const string& chan, channels)
         histos1D[chan][name]["n"] = bookHisto(chan + "_" + name + "_n", "multiplicity", "", 10, 0, 10);
-    }
 
     return;
 }

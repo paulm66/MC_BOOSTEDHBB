@@ -24,7 +24,7 @@ if __name__ == "__main__":
 
 
     # list of list of split procs
-    splitprocs = map(lambda p: mg5split(p, "ptb", "ptbmax", defptbs), procs)
+    splitprocs = map(lambda p: mg5split(p, "ptj1min", "ptj1max", defptbs), procs)
 
     # list of all procs to run
     procs = sum(splitprocs[1:], splitprocs[0])

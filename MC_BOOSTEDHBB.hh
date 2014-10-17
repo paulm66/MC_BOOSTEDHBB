@@ -55,6 +55,16 @@ namespace Rivet {
                 ZNUNUBOOSTEDHBB,    // 22
                 ZLLBOOSTEDHB,       // 23
                 ZLLBOOSTEDHBB,      // 24
+                TWOAKTVRJETSINC,
+                TWOAKTVRJETSEXC,
+                VRHB,
+                VRHBB,
+                WLNUVRHB,
+                WLNUVRHBB,
+                ZNUNUVRHB,
+                ZNUNUVRHBB,
+                ZLLVRHB,
+                ZLLVRHBB,
                 CUTSLEN
             };
 
