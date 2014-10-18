@@ -3,7 +3,7 @@
 from mg5common import mg5proc, mg5split
 
 # -1 -> no max value
-defptbs = [0, 15, 25, 30, 35, 40, 50, 60, 75, 100, 125, 150, 175, 200,
+defptjs = [0, 15, 25, 30, 35, 40, 50, 60, 75, 100, 125, 150, 175, 200,
         250, 300, 350, 400, 500, -1]
 
 if __name__ == "__main__":
@@ -24,12 +24,13 @@ if __name__ == "__main__":
 
 
     # list of list of split procs
-    splitprocs = map(lambda p: mg5split(p, "ptj1min", "ptj1max", defptbs), procs)
+    splitprocs = map(lambda p: mg5split(p, "ptj1min", "ptj1max", defptjs), procs)
 
     # list of all procs to run
     procs = sum(splitprocs[1:], splitprocs[0])
 
     for p in procs:
+        p.runcarddict["maxjetflavor"] = 5
         p.initialize()
 
     # remove spurious leftover files
