@@ -107,7 +107,7 @@ void MC_BOOSTEDHBB::init() {
 
     // variable-R jets
     fastjet::JetDefinition::Plugin *vrplug =
-        new fastjet::contrib::VariableRPlugin(25*GeV /* rho < mH */, 0.2, 0.6, fastjet::contrib::VariableRPlugin::AKTLIKE);
+        new fastjet::contrib::VariableRPlugin(60*GeV /* rho < mH */, 0.2, 0.6, fastjet::contrib::VariableRPlugin::AKTLIKE);
     addProjection(FastJets(caloParts, vrplug), "AntiKtVRCaloJets");
 
 
