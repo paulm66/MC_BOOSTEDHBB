@@ -31,9 +31,9 @@ namespace Rivet {
             Histo1DPtr cutflow;
             enum cuts {
                 NONE,               // 0
-                ZLL,                // 1
-                WLNU,               // 2
-                ZNUNU,              // 3
+                WLNU,               // 1
+                ZNUNU,              // 2
+                ZLL,                // 3
                 VBOSON,             // 4
                 TWOAKT04JETSINC,    // 5
                 TWOAKT04JETSEXC,    // 6
