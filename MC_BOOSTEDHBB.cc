@@ -16,7 +16,6 @@
 #include "Rivet/Projections/ZFinder.hh"
 #include "Rivet/Projections/WFinder.hh"
 #include "Rivet/Projections/MissingMomentum.hh"
-#include "Rivet/Projections/HeavyHadrons.hh"
 
 #include "Rivet/Jet.hh"
 #include "Rivet/Projections/FastJets.hh"
@@ -74,8 +73,6 @@ void MC_BOOSTEDHBB::init() {
     // minimum pt cutoff?
     MissingMomentum mmfs(FinalState(-4.2, 4.2, 0*GeV));
     addProjection(mmfs, "MissingMomentum");
-
-    addProjection(HeavyHadrons(), "HeavyHadrons");
 
     addProjection(ZFinder(-2.5, 2.5, 25*GeV, 11, 75*GeV, 105*GeV), "ZeeFinder");
     addProjection(ZFinder(-2.5, 2.5, 25*GeV, 13, 75*GeV, 105*GeV), "ZmumuFinder");
