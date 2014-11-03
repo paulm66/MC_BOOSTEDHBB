@@ -29,7 +29,7 @@ def runpythia_pbs(folder):
     cmd = "run-pythia -n 999999999 -l %s -o %s" % \
             (fin, fout)
 
-    p = pbssubmit("pythia.%s" % fnamebase, cmd, outfile=flog)
+    p = pbssubmit("pythia.%s" % fnamebase, cmd, outfile=flog, queue="medium6")
     p.wait()
     print p.stdout.read()
     print p.stderr.read()

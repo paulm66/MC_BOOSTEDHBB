@@ -22,7 +22,7 @@ def runrivet_pbs(fhepmcnames):
                 (fyoda, fhepmc)
 
         running.append(pbssubmit("rivet.%s" % fhepmc,  cmd,
-            outfile=flog))
+            outfile=flog, queue="medium6"))
 
         sleep(1)
         continue
