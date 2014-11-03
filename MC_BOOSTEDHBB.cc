@@ -25,6 +25,7 @@
 
 using std::map;
 using std::string;
+using namespace Rivet::Cuts;
 
 
 // TODO
@@ -74,12 +75,13 @@ void MC_BOOSTEDHBB::init() {
     MissingMomentum mmfs(FinalState(-4.2, 4.2, 0*GeV));
     addProjection(mmfs, "MissingMomentum");
 
-    addProjection(ZFinder(-2.5, 2.5, 25*GeV, 11, 75*GeV, 105*GeV), "ZeeFinder");
-    addProjection(ZFinder(-2.5, 2.5, 25*GeV, 13, 75*GeV, 105*GeV), "ZmumuFinder");
+    FinalState fs;
+    addProjection(ZFinder(fs, etaIn(-2.5, 2.5) & (pT >= 25*GeV), PID::ELECTRON, 75*GeV, 105*GeV), "ZeeFinder");
+    addProjection(ZFinder(fs, etaIn(-2.5, 2.5) & (pT >= 25*GeV), PID::MUON, 75*GeV, 105*GeV), "ZmumuFinder");
 
-    addProjection(WFinder(-2.5, 2.5, 25*GeV, 11, 65*GeV, 95*GeV, 25*GeV), "WenuFinder");
-    addProjection(WFinder(-2.5, 2.5, 25*GeV, 13, 65*GeV, 95*GeV, 25*GeV), "WmunuFinder");
-
+    addProjection(WFinder(fs, etaIn(-2.5, 2.5) & (pT > 25*GeV), PID::ELECTRON, 65*GeV, 95*GeV, 25*GeV), "WenuFinder");
+    addProjection(WFinder(fs, etaIn(-2.5, 2.5) & (pT > 25*GeV), PID::MUON, 65*GeV, 95*GeV, 25*GeV), "WmunuFinder");
+    
     // calo jets constituents
     // TODO
     // don't include high-pt neutrinos or leptons in jets
