@@ -71,6 +71,10 @@ namespace Rivet {
             vector<bool> cutBits;
 
 
+            vector<Pseudojet> pjs; 
+
+
+
             vector<string> channels;
             map<string, map<string, map<string, Histo1DPtr> > > histos1D;
             map<string, map<string, map<string, Histo2DPtr> > > histos2D;

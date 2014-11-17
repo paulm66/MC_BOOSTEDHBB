@@ -109,6 +109,9 @@ void MC_BOOSTEDHBB::init() {
         new fastjet::contrib::VariableRPlugin(60*GeV /* rho < mH */, 0.2, 0.6, fastjet::contrib::VariableRPlugin::AKTLIKE);
     addProjection(FastJets(caloParts, vrplug), "AntiKtVRCaloJets");
 
+    fastjet::JetDefinition::Plugin *vrtplug =
+        new fastjet::contrib::VariableRPlugin(60*GeV /* rho < mH */, 0.2, 0.6, fastjet::contrib::VariableRPlugin::AKTLIKE);
+    addProjection(FastJets(trackParts, vrtplug), "AntiKtVRTrackJets");
 
     // register Z and W bosons
     bookFourMom("vboson");
@@ -168,6 +171,45 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
         applyProjection<FastJets>(event, "AntiKtVRCaloJets").jetsByPt(25*GeV);
     const Jets& aktvrcbjs = bTagged(aktvrcjs);
 
+    const Jets& vrtjs =
+        applyProjection<FastJets>(event, "AntiKtVRTrackJets").jetsByPt(25*GeV);
+
+    //clear the vectors!
+    pjs.clear()
+    foreach (const Jet &calojet, akt10cjs) {
+        //get particles and call them p
+        const vector< Particle > & parts=calojet.particles();
+        foreach ( const Particle &p, parts){
+          fastjet::PseudoJet pj(p.px(), p.py(), p.pz(), p.E()); 
+          pjs.push_back(pj);
+        }//add this shit to the header
+    //do some user index crap?
+        //loop over particles
+        //make pseudojet from particles	
+        //push back pseudojet to vector
+        //end loop
+    }
+
+    foreach (const Jet &trackjet, vrtjs) {
+        //get constituent particles and call them p;
+        //loop over particles
+        const vector< Particle > & parts=trackjet.particles();
+        foreach ( const Particle &p, parts){
+
+          const FourMomentum fv = 1e-20 * p.momentum();//making a ghost
+          fastjet::PseudoJet pj(fv.px(), fv.py(), fv.pz(), fv.E()); 
+          pjs.push_back(pj);
+
+        }
+        //make pseudojet of ghost
+         //push back to vector
+
+        //end loop
+    }
+    //we now have all of the clusters in our vector of pseudojets. Run clustering? Make small R jets.
+    fastjet::JetDefinition jet_def_small(fastjet::cambridge_algorithm, 0.2);//maybe use cambridge aachen?
+    fastjet::ClusterSequence clust_seq_small1(pjs, jet_def_small);
+    vector<fastjet::PseudoJet> smallJets = fastjet::sorted_by_pt(clust_seq_small1.inclusive_jets(20*GeV));
 
     // find vboson
     Particle vboson;
