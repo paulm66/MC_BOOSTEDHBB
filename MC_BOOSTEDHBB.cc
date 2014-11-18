@@ -95,6 +95,11 @@ void MC_BOOSTEDHBB::init() {
     VetoedFinalState caloParts(FinalState(-4.2, 4.2));
     caloParts.addVetoOnThisFinalState(leptonsAndNeutrinos);
 
+
+    //adding the caloparts so we can project it out as particles
+    addProjection(caloParts, "CaloParts");
+
+
     // track jets constituents
     VetoedFinalState trackParts(ChargedFinalState(-2.5, 2.5, 0.5*GeV));
     trackParts.addVetoOnThisFinalState(leptonsAndNeutrinos);
@@ -146,6 +151,11 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
     const Particles& wmunubosons =
         applyProjection<WFinder>(event, "WmunuFinder").bosons();
 
+
+    const Particles& CalParticles=
+        applyProjection<VetoedFinalState>(event, "CaloParts").particles();
+
+
     // leptons
     // TODO
     // isolation?
@@ -174,6 +184,16 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
     const Jets& vrtjs =
         applyProjection<FastJets>(event, "AntiKtVRTrackJets").jetsByPt(25*GeV);
 
+
+
+
+    
+    vector<pair<Jet, vector<const Jet*>> MyTetsObj = GhostHunter(CalParticles, vrtjs);
+
+
+
+
+/*
     //clear the vectors!
     pjs.clear()
     foreach (const Jet &calojet, akt10cjs) {
@@ -210,7 +230,7 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
     fastjet::JetDefinition jet_def_small(fastjet::cambridge_algorithm, 0.2);//maybe use cambridge aachen?
     fastjet::ClusterSequence clust_seq_small1(pjs, jet_def_small);
     vector<fastjet::PseudoJet> smallJets = fastjet::sorted_by_pt(clust_seq_small1.inclusive_jets(20*GeV));
-
+*/
     // find vboson
     Particle vboson;
     if (zeebosons.size() && leptons.size() == 2) {
@@ -381,11 +401,75 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
     return;
 }
 
+//returns a vector of jets that have been constructed from particles and ghost jets 
+//the pair gives us an association between each new jet and all of the ghost jets that have been clustered into it
+vector<pair<Jet, vector<const Jet*>>GhostHunter(const Particles& parts, const Jets& jets){//ghost busters?
+    vector<pair<Jet, vector<const Jet*>> FinalObject; //final object
+    pjs.clear()
+    std::map<int, Jet*> JetMap;
+
+    foreach ( const Particle &p, parts){
+      fastjet::PseudoJet pj(p.px(), p.py(), p.pz(), p.E()); 
+      pjs.push_back(pj);
+    }//add this shit to the header
+    int counter=0;
+    foreach (const Jet &jet, jets) {
+        counter++;
+        //make jet momentum ~=0 (ghost) and add them to pseudojet in preparation for clustering
+        //track them using set_user_index
+
+        JetMap[-counter]= &jet;
+
+        const FourMomentum fv = 1e-20 * jet.momentum();//making a ghost
+        fastjet::PseudoJet pj(fv.px(), fv.py(), fv.pz(), fv.E()); 
+        pj.set_user_index(-counter);//todo
+        pjs.push_back(pj);
+    }
+
+
+    //cluster jet
+    //make algorithm type an input to the function?
+    //make these variables exist in the header?
+    fastjet::JetDefinition jet_def_small(fastjet::cambridge_algorithm, 0.2);//maybe use cambridge aachen?
+    fastjet::ClusterSequence clust_seq_small1(pjs, jet_def_small);
+    vector<fastjet::PseudoJet> smallJets = fastjet::sorted_by_pt(clust_seq_small1.inclusive_jets(20*GeV));
+   
+
+    //now build the output data structure
+    foreach (vector<fastjet::PseudoJet> newjets, smallJets){
+        //clear inner vector
+        //vector<const *Jet> InnerVector;
+        InnerVector.clear();
+        //clear pair
+        foreach(constituent of newjet){//fix
+            if (constituent.user_index()<0){
+                //map lookup
+                //push back map return into inner vector
+                
+                InnerVector.push_back(JetMap.find(-constituent.user_index());
+
+            }
+
+        }
+        pair<Jet, vector<const Jet*>;
+        JetPair = make_pair(newjets, InnerVector);
+        FinalObject.push_back(JetPair);
+        //make pair of <newjet, inner vector>
+        //push back into outer vector
+
+
+        
+
+    }
+
+    return FinalObject;
+}
+
 
 /// Normalise histograms etc., after the run
 void MC_BOOSTEDHBB::finalize() {
 
-    // normalize to 1/fb
+    // normalize to 1
     double norm = 1000*crossSection()/sumOfWeights();
     for (map< string, map<string, map<string, Histo1DPtr> > >::iterator p = histos1D.begin(); p != histos1D.end(); ++p) {
         for (map<string, map<string, Histo1DPtr> >::iterator q = p->second.begin(); q != p->second.end(); ++q) {
