@@ -188,7 +188,7 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
 
 
     
-    vector<pair<Jet, vector<const Jet*>> MyTetsObj = GhostHunter(CalParticles, vrtjs);
+    vector<pair<Jet, vector<const Jet* > > > MyTetsObj = GhostHunter(CalParticles, vrtjs);
 
 
 
@@ -403,10 +403,11 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
 
 //returns a vector of jets that have been constructed from particles and ghost jets 
 //the pair gives us an association between each new jet and all of the ghost jets that have been clustered into it
-vector<pair<Jet, vector<const Jet*>>GhostHunter(const Particles& parts, const Jets& jets){//ghost busters?
-    vector<pair<Jet, vector<const Jet*>> FinalObject; //final object
-    pjs.clear()
-    std::map<int, Jet*> JetMap;
+vector<pair<Jet, vector<const Jet* > > >MC_BOOSTEDHBB::GhostHunter(const Particles& parts, const Jets& jets){//ghost busters?
+
+    vector<pair<Jet, vector<const Jet*> > > FinalObject; //final object
+    pjs.clear();
+    std::map<int, const Jet*> JetMap;
 
     foreach ( const Particle &p, parts){
       fastjet::PseudoJet pj(p.px(), p.py(), p.pz(), p.E()); 
@@ -436,22 +437,22 @@ vector<pair<Jet, vector<const Jet*>>GhostHunter(const Particles& parts, const Je
    
 
     //now build the output data structure
-    foreach (vector<fastjet::PseudoJet> newjets, smallJets){
+    foreach (fastjet::PseudoJet newjets, smallJets){
         //clear inner vector
-        //vector<const *Jet> InnerVector;
+        vector<const Jet*> InnerVector;
         InnerVector.clear();
         //clear pair
-        foreach(constituent of newjet){//fix
+        foreach(PseudoJet constituent, newjets.constituents()){
             if (constituent.user_index()<0){
                 //map lookup
                 //push back map return into inner vector
                 
-                InnerVector.push_back(JetMap.find(-constituent.user_index());
+                InnerVector.push_back(JetMap.find(-constituent.user_index()));
 
             }
 
         }
-        pair<Jet, vector<const Jet*>;
+        pair<Jet, vector<const Jet*> > JetPair;
         JetPair = make_pair(newjets, InnerVector);
         FinalObject.push_back(JetPair);
         //make pair of <newjet, inner vector>

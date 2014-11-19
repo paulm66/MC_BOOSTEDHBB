@@ -71,7 +71,7 @@ namespace Rivet {
             vector<bool> cutBits;
 
 
-            vector<Pseudojet> pjs; 
+            vector<PseudoJet> pjs; 
 
 
 
@@ -80,6 +80,9 @@ namespace Rivet {
             map<string, map<string, map<string, Histo2DPtr> > > histos2D;
 
             void bookChannel(const string& channel);
+
+            //vector<pair<Jet, vector<const Jet* > > GhostHunter(CalParticles, vrtjs);
+            vector < pair < Jet, vector < const Jet* > > >GhostHunter(const Particles& parts, const Jets& jets);//ghost busters?
 
             Histo1DPtr bookHisto(const string& name, const string& title,
                     const string& xlabel, int nxbins, double xmin, double xmax);
