@@ -32,9 +32,9 @@ using namespace Rivet::Cuts;
 // global variables. ick
 const string ptlab = "$p_T$ / GeV";
 const string mlab = "mass / GeV";
-const string drlab = "$\\Delta R";
-const string etalab = "$\\eta";
-const string philab = "$\\phi";
+const string drlab = "$\\Delta R$";
+const string etalab = "$\\eta$";
+const string philab = "$\\phi$";
 
 namespace Rivet {
 
@@ -418,15 +418,17 @@ vector<pair<Jet, vector<const Jet* > > >MC_BOOSTEDHBB::GhostHunter(const Particl
 
     foreach ( const Particle &p, parts){
       fastjet::PseudoJet pj(p.px(), p.py(), p.pz(), p.E()); 
+      pj.set_user_index(0);//todo
       pjs.push_back(pj);
     }//add this shit to the header
     int counter=0;
     foreach (const Jet &jet, jets) {
+        //so we dont use zero as a user index
         counter++;
         //make jet momentum ~=0 (ghost) and add them to pseudojet in preparation for clustering
         //track them using set_user_index
 
-        JetVec[counter]= &jet;
+        JetVec.push_back(&jet);
         //JetMap[counter]= &jet;
 
         const FourMomentum fv = 1e-20 * jet.momentum();//making a ghost
@@ -434,12 +436,14 @@ vector<pair<Jet, vector<const Jet* > > >MC_BOOSTEDHBB::GhostHunter(const Particl
         pj.set_user_index(-counter);//todo
         pjs.push_back(pj);
     }
+    MSG_DEBUG("done adding jets");
 
 
     //cluster jet
     //make algorithm type an input to the function?
     //make these variables exist in the header?
-    fastjet::JetDefinition jet_def_small(fastjet::cambridge_algorithm, 0.2);//maybe use cambridge aachen?
+    //fastjet::JetDefinition jet_def_small(fastjet::cambridge_algorithm, 0.2);//maybe use cambridge aachen?
+    fastjet::JetDefinition jet_def_small(fastjet::cambridge_algorithm, 0.4);//maybe use cambridge aachen?
     fastjet::ClusterSequence clust_seq_small1(pjs, jet_def_small);
     vector<fastjet::PseudoJet> smallJets = fastjet::sorted_by_pt(clust_seq_small1.inclusive_jets(20*GeV));
    
@@ -450,20 +454,27 @@ vector<pair<Jet, vector<const Jet* > > >MC_BOOSTEDHBB::GhostHunter(const Particl
         vector<const Jet*> InnerVector;
         InnerVector.clear();
         //clear pair
-        foreach(PseudoJet constituent, newjets.constituents()){
+
+//        foreach(PseudoJet constituent, newjets.constituents()){
+        vector<fastjet::PseudoJet> tmpJets=newjets.constituents();
+        foreach(const fastjet::PseudoJet constituent, tmpJets){
             if (constituent.user_index()<0){
                 //map lookup
                 //push back map return into inner vector
                 
+                MSG_DEBUG("found a ghost at " << constituent.user_index() << " size is " << JetVec.size());
                 //InnerVector.push_back(JetMap.find(-constituent.user_index()));
-                InnerVector.push_back(JetVec[-constituent.user_index()]);
+                //the user_index starts at -1; the vector starts at zero. --1-1=0
+                InnerVector.push_back(JetVec.at(-constituent.user_index()-1));
 
             }
 
         }
+        MSG_DEBUG("found all ghosts in a jet");
         pair<Jet, vector<const Jet*> > JetPair;
         JetPair = make_pair(newjets, InnerVector);
         FinalObject.push_back(JetPair);
+        MSG_DEBUG("made all pairs");
         //make pair of <newjet, inner vector>
         //push back into outer vector
 
