@@ -29,6 +29,7 @@ namespace Rivet {
 
 
             Histo1DPtr cutflow;
+            Histo1DPtr jetflow;
             enum cuts {
                 NONE,               // 0
                 WLNU,               // 1

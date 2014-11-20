@@ -126,6 +126,7 @@ void MC_BOOSTEDHBB::init() {
     bookFourMomPair("vboson_higgs");
 
     cutflow = bookHisto1D("cutflow", CUTSLEN, 0, CUTSLEN, "cutflow", "cut", "entries");
+    jetflow = bookHisto1D("jetflow", 10, 0, 9, "track jets matched", "jets", "entries");
 
     return;
 }
@@ -188,7 +189,12 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
 
 
     
-    vector<pair<Jet, vector<const Jet* > > > MyTetsObj = GhostHunter(CalParticles, vrtjs);
+    vector<pair<Jet, vector<const Jet* > > > MyTestObj = GhostHunter(CalParticles, vrtjs);
+    typedef pair<Jet, vector<const Jet* > > jetAssoc;
+    foreach(const jetAssoc &TestObj, MyTestObj){
+        jetflow->fill(TestObj.second.size(),1);
+
+    }
 
 
 
@@ -407,7 +413,8 @@ vector<pair<Jet, vector<const Jet* > > >MC_BOOSTEDHBB::GhostHunter(const Particl
 
     vector<pair<Jet, vector<const Jet*> > > FinalObject; //final object
     pjs.clear();
-    std::map<int, const Jet*> JetMap;
+    //std::map<int, const Jet*> JetMap;
+    vector<const Jet*> JetVec;
 
     foreach ( const Particle &p, parts){
       fastjet::PseudoJet pj(p.px(), p.py(), p.pz(), p.E()); 
@@ -419,7 +426,8 @@ vector<pair<Jet, vector<const Jet* > > >MC_BOOSTEDHBB::GhostHunter(const Particl
         //make jet momentum ~=0 (ghost) and add them to pseudojet in preparation for clustering
         //track them using set_user_index
 
-        JetMap[-counter]= &jet;
+        JetVec[counter]= &jet;
+        //JetMap[counter]= &jet;
 
         const FourMomentum fv = 1e-20 * jet.momentum();//making a ghost
         fastjet::PseudoJet pj(fv.px(), fv.py(), fv.pz(), fv.E()); 
@@ -447,7 +455,8 @@ vector<pair<Jet, vector<const Jet* > > >MC_BOOSTEDHBB::GhostHunter(const Particl
                 //map lookup
                 //push back map return into inner vector
                 
-                InnerVector.push_back(JetMap.find(-constituent.user_index()));
+                //InnerVector.push_back(JetMap.find(-constituent.user_index()));
+                InnerVector.push_back(JetVec[-constituent.user_index()]);
 
             }
 
