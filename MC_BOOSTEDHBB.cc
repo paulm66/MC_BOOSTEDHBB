@@ -198,45 +198,6 @@ void MC_BOOSTEDHBB::analyze(const Event& event) {
 
 
 
-
-/*
-    //clear the vectors!
-    pjs.clear()
-    foreach (const Jet &calojet, akt10cjs) {
-        //get particles and call them p
-        const vector< Particle > & parts=calojet.particles();
-        foreach ( const Particle &p, parts){
-          fastjet::PseudoJet pj(p.px(), p.py(), p.pz(), p.E()); 
-          pjs.push_back(pj);
-        }//add this shit to the header
-    //do some user index crap?
-        //loop over particles
-        //make pseudojet from particles	
-        //push back pseudojet to vector
-        //end loop
-    }
-
-    foreach (const Jet &trackjet, vrtjs) {
-        //get constituent particles and call them p;
-        //loop over particles
-        const vector< Particle > & parts=trackjet.particles();
-        foreach ( const Particle &p, parts){
-
-          const FourMomentum fv = 1e-20 * p.momentum();//making a ghost
-          fastjet::PseudoJet pj(fv.px(), fv.py(), fv.pz(), fv.E()); 
-          pjs.push_back(pj);
-
-        }
-        //make pseudojet of ghost
-         //push back to vector
-
-        //end loop
-    }
-    //we now have all of the clusters in our vector of pseudojets. Run clustering? Make small R jets.
-    fastjet::JetDefinition jet_def_small(fastjet::cambridge_algorithm, 0.2);//maybe use cambridge aachen?
-    fastjet::ClusterSequence clust_seq_small1(pjs, jet_def_small);
-    vector<fastjet::PseudoJet> smallJets = fastjet::sorted_by_pt(clust_seq_small1.inclusive_jets(20*GeV));
-*/
     // find vboson
     Particle vboson;
     if (zeebosons.size() && leptons.size() == 2) {
@@ -455,9 +416,7 @@ vector<pair<Jet, vector<const Jet* > > >MC_BOOSTEDHBB::GhostHunter(const Particl
         InnerVector.clear();
         //clear pair
 
-//        foreach(PseudoJet constituent, newjets.constituents()){
-        vector<fastjet::PseudoJet> tmpJets=newjets.constituents();
-        foreach(const fastjet::PseudoJet constituent, tmpJets){
+        foreach(PseudoJet constituent, newjets.constituents()){
             if (constituent.user_index()<0){
                 //map lookup
                 //push back map return into inner vector
@@ -470,12 +429,9 @@ vector<pair<Jet, vector<const Jet* > > >MC_BOOSTEDHBB::GhostHunter(const Particl
             }
 
         }
-        MSG_DEBUG("found all ghosts in a jet");
         pair<Jet, vector<const Jet*> > JetPair;
         JetPair = make_pair(newjets, InnerVector);
         FinalObject.push_back(JetPair);
-        MSG_DEBUG("made all pairs");
-        //make pair of <newjet, inner vector>
         //push back into outer vector
 
 
